@@ -10,6 +10,7 @@ const links = [
   { to: '/table', label: 'Table' },
   { to: '/products', label: 'Products' },
   { to: '/checkout', label: 'Checkout' },
+  { to: '/playground', label: 'Playground' },
 ];
 
 export default function App() {

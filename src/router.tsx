@@ -37,6 +37,7 @@ import TablePage from './pages/TablePage';
 import ProductsShowcasePage from './features/products/pages/ProductsShowcasePage';
 import CheckoutAdvancedPage from './features/products/pages/CheckoutAdvancedPage';
 import OrderHistoryPage from './features/products/pages/OrderHistoryPage';
+import PlaygroundPage from './pages/PlaygroundPage';
 
 export const router = createBrowserRouter([
   {
@@ -52,6 +53,7 @@ export const router = createBrowserRouter([
       { path: 'products', element: <ProductsShowcasePage /> },
       { path: 'checkout', element: <CheckoutAdvancedPage /> },
       { path: 'orders', element: <OrderHistoryPage /> },
+      { path: 'playground', element: <PlaygroundPage /> },
     ],
   },
 ]);

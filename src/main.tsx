@@ -21,13 +21,16 @@ import { router } from './router';
 import { store } from './app/store';
 import './index.css';
 import { CartProvider } from './context/CartContext';
+import { QueryProvider } from './lib/QueryProvider'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Provider store={store}>
-      <CartProvider>
-        <RouterProvider router={router} />
-      </CartProvider>
+      <QueryProvider>
+        <CartProvider>
+          <RouterProvider router={router} />
+        </CartProvider>
+      </QueryProvider>
     </Provider>
   </React.StrictMode>
 );
