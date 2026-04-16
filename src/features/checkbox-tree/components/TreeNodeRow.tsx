@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { TreeNode } from '../types';
 import { getSelectionState } from '../utils/treeHelpers';
+import AnimatedTreeChildren from './AnimatedTreeChildren';
 import styles from './CheckboxTree.module.css';
 
 interface Props {
@@ -132,26 +133,28 @@ export default function TreeNodeRow({
         </label>
       </div>
 
-      {hasChildren && isExpanded && (
-        <div role="group">
-          {node.children!.map((child) => (
-            <TreeNodeRow
-              key={child.id}
-              node={child}
-              level={level + 1}
-              selectedIds={selectedIds}
-              expandedIds={expandedIds}
-              focusedId={focusedId}
-              onFocus={onFocus}
-              onToggleExpand={onToggleExpand}
-              onToggleCheck={onToggleCheck}
-              onArrowDown={onArrowDown}
-              onArrowUp={onArrowUp}
-              onHome={onHome}
-              onEnd={onEnd}
-            />
-          ))}
-        </div>
+      {hasChildren && (
+        <AnimatedTreeChildren isVisible={isExpanded}>
+          <div role="group">
+            {node.children!.map((child) => (
+              <TreeNodeRow
+                key={child.id}
+                node={child}
+                level={level + 1}
+                selectedIds={selectedIds}
+                expandedIds={expandedIds}
+                focusedId={focusedId}
+                onFocus={onFocus}
+                onToggleExpand={onToggleExpand}
+                onToggleCheck={onToggleCheck}
+                onArrowDown={onArrowDown}
+                onArrowUp={onArrowUp}
+                onHome={onHome}
+                onEnd={onEnd}
+              />
+            ))}
+          </div>
+        </AnimatedTreeChildren>
       )}
     </div>
   );

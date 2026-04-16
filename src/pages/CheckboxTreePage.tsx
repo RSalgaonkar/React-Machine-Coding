@@ -24,7 +24,7 @@ export default function CheckboxTreePage() {
     <div className="page">
       <CheckboxTree
         data={checkboxTreeData}
-        title="Production Checkbox Tree"
+        title="Checkbox Tree — Portfolio Edition"
       />
     </div>
   );

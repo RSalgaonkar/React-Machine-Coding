@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type { TreeNode } from '../types';
 import {
   findNodeById,
@@ -7,13 +8,23 @@ import {
   getExpandableNodeIds,
 } from '../utils/treeHelpers';
 import { filterTreeByQuery } from '../utils/treeSearch';
+import { getSelectedChips } from '../utils/treeSelection';
+import { parseCsvParam, stringifyCsvParam, uniqueValues } from '../utils/urlState';
 
 export const useCheckboxTree = (treeData: TreeNode[]) => {
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(
-    new Set(getExpandableNodeIds(treeData).slice(0, 1))
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [search, setSearch] = useState(searchParams.get('q') ?? '');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(
+    new Set(parseCsvParam(searchParams.get('selected')))
   );
-  const [search, setSearch] = useState('');
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(
+    new Set(
+      parseCsvParam(searchParams.get('expanded')).length
+        ? parseCsvParam(searchParams.get('expanded'))
+        : getExpandableNodeIds(treeData).slice(0, 1)
+    )
+  );
   const [focusedId, setFocusedId] = useState<string | null>(null);
 
   const filteredTree = useMemo(
@@ -26,14 +37,41 @@ export const useCheckboxTree = (treeData: TreeNode[]) => {
     [filteredTree, expandedIds]
   );
 
+  const selectedChips = useMemo(
+    () => getSelectedChips(treeData, selectedIds),
+    [treeData, selectedIds]
+  );
+
+  useEffect(() => {
+    const nextSelected = stringifyCsvParam(uniqueValues([...selectedIds]));
+    const nextExpanded = stringifyCsvParam(uniqueValues([...expandedIds]));
+
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+
+      if (search.trim()) params.set('q', search.trim());
+      else params.delete('q');
+
+      if (nextSelected) params.set('selected', nextSelected);
+      else params.delete('selected');
+
+      if (nextExpanded) params.set('expanded', nextExpanded);
+      else params.delete('expanded');
+
+      return params;
+    }, { replace: true });
+  }, [search, selectedIds, expandedIds, setSearchParams]);
+
+  useEffect(() => {
+    if (!search.trim()) return;
+    setExpandedIds(new Set(getExpandableNodeIds(filteredTree)));
+  }, [search, filteredTree]);
+
   const toggleExpand = (nodeId: string) => {
     setExpandedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(nodeId)) {
-        next.delete(nodeId);
-      } else {
-        next.add(nodeId);
-      }
+      if (next.has(nodeId)) next.delete(nodeId);
+      else next.add(nodeId);
       return next;
     });
   };
@@ -52,18 +90,32 @@ export const useCheckboxTree = (treeData: TreeNode[]) => {
 
     const impactedIds = getDescendantIds(node);
     const enabledIds = impactedIds.filter((id) => {
-      const targetNode = findNodeById(treeData, id);
-      return !targetNode?.disabled;
+      const item = findNodeById(treeData, id);
+      return !item?.disabled;
     });
 
     setSelectedIds((prev) => {
       const next = new Set(prev);
-
       enabledIds.forEach((id) => {
         if (checked) next.add(id);
         else next.delete(id);
       });
+      return next;
+    });
+  };
 
+  const clearAllSelected = () => {
+    setSelectedIds(new Set());
+  };
+
+  const removeSelectedChip = (nodeId: string) => {
+    const node = findNodeById(treeData, nodeId);
+    if (!node) return;
+
+    const impactedIds = getDescendantIds(node);
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      impactedIds.forEach((id) => next.delete(id));
       return next;
     });
   };
@@ -76,7 +128,9 @@ export const useCheckboxTree = (treeData: TreeNode[]) => {
     }
 
     const currentIndex = visibleNodes.findIndex((node) => node.id === focusedId);
-    const nextIndex = currentIndex < visibleNodes.length - 1 ? currentIndex + 1 : currentIndex;
+    const nextIndex =
+      currentIndex < visibleNodes.length - 1 ? currentIndex + 1 : currentIndex;
+
     setFocusedId(visibleNodes[nextIndex].id);
   };
 
@@ -89,6 +143,7 @@ export const useCheckboxTree = (treeData: TreeNode[]) => {
 
     const currentIndex = visibleNodes.findIndex((node) => node.id === focusedId);
     const prevIndex = currentIndex > 0 ? currentIndex - 1 : currentIndex;
+
     setFocusedId(visibleNodes[prevIndex].id);
   };
 
@@ -101,18 +156,21 @@ export const useCheckboxTree = (treeData: TreeNode[]) => {
   };
 
   return {
-    selectedIds,
-    expandedIds,
     search,
     setSearch,
+    selectedIds,
+    expandedIds,
     focusedId,
     setFocusedId,
     filteredTree,
     visibleNodes,
+    selectedChips,
     toggleExpand,
     expandAll,
     collapseAll,
     toggleCheck,
+    clearAllSelected,
+    removeSelectedChip,
     focusNext,
     focusPrev,
     focusFirst,
