@@ -1,15 +1,24 @@
 import styles from './NestedComments.module.css';
+import type { CommentsTheme } from '../types';
 
 interface Props {
-  title: string;
-  subtitle: string;
+  theme: CommentsTheme;
+  onToggleTheme: () => void;
 }
 
-export default function CommentsHeader({ title, subtitle }: Props) {
+export default function CommentsHeader({ theme, onToggleTheme }: Props) {
   return (
     <div className={styles.header}>
-      <h2 className={styles.title}>{title}</h2>
-      <p className={styles.subtitle}>{subtitle}</p>
+      <div>
+        <h2 className={styles.title}>Nested Comments</h2>
+        <p className={styles.subtitle}>
+          Recursive threaded discussions with reducer-driven state.
+        </p>
+      </div>
+
+      <button type="button" className={styles.secondaryBtn} onClick={onToggleTheme}>
+        Switch to {theme === 'light' ? 'Dark' : 'Light'} Mode
+      </button>
     </div>
   );
 }

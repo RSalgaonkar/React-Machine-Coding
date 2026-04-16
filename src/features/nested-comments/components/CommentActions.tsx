@@ -39,7 +39,12 @@ export default function CommentActions({
         Edit
       </button>
 
-      <button type="button" className={styles.linkBtnDanger} onClick={onDelete} disabled={isDeleted}>
+      <button
+        type="button"
+        className={styles.linkBtnDanger}
+        onClick={onDelete}
+        disabled={isDeleted}
+      >
         Delete
       </button>
 

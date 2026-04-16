@@ -1,41 +1,42 @@
-.showcase {
-  --bg: #ffffff;
-  --panel: #f8fafc;
-  --panel-2: #eef2f7;
-  --text: #111827;
-  --muted: #6b7280;
-  --border: #d7dee7;
-  --primary: #2563eb;
-  --primary-soft: #dbeafe;
-  --danger: #dc2626;
-  --danger-soft: #fee2e2;
-  --success-soft: #dcfce7;
-  background: var(--bg);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 24px;
+.wrapper {
   display: grid;
-  gap: 16px;
+  gap: 20px;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--nc-bg);
+  color: var(--nc-text);
 }
 
-.showcase[data-theme='dark'] {
-  --bg: #0f172a;
-  --panel: #111827;
-  --panel-2: #1f2937;
-  --text: #e5e7eb;
-  --muted: #9ca3af;
-  --border: #334155;
-  --primary: #60a5fa;
-  --primary-soft: #1e3a8a;
-  --danger: #f87171;
-  --danger-soft: #3f1d1d;
-  --success-soft: #1d3b2b;
+.wrapper[data-theme='light'] {
+  --nc-bg: #f7f8fb;
+  --nc-surface: #ffffff;
+  --nc-surface-2: #f2f4f8;
+  --nc-border: #dbe1ea;
+  --nc-text: #1d2433;
+  --nc-text-soft: #5b6475;
+  --nc-primary: #0d6efd;
+  --nc-primary-soft: #e7f1ff;
+  --nc-danger: #dc3545;
+}
+
+.wrapper[data-theme='dark'] {
+  --nc-bg: #10141c;
+  --nc-surface: #171d27;
+  --nc-surface-2: #1d2430;
+  --nc-border: #2d3748;
+  --nc-text: #eef2f7;
+  --nc-text-soft: #9ca7ba;
+  --nc-primary: #66a3ff;
+  --nc-primary-soft: #1c2e4d;
+  --nc-danger: #ff7b88;
 }
 
 .header {
-  display: grid;
-  gap: 6px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .title {
@@ -44,179 +45,212 @@
 }
 
 .subtitle {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.6;
+  margin: 6px 0 0;
+  color: var(--nc-text-soft);
+}
+
+.panel {
+  background: var(--nc-surface);
+  border: 1px solid var(--nc-border);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.sectionTitle {
+  margin: 0 0 14px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.statCard {
+  background: var(--nc-surface);
+  border: 1px solid var(--nc-border);
+  border-radius: 14px;
+  padding: 16px;
+  display: grid;
+  gap: 6px;
+}
+
+.statLabel {
+  color: var(--nc-text-soft);
+  font-size: 13px;
 }
 
 .toolbar {
   display: flex;
-  flex-wrap: wrap;
   gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.toolbarActions {
-  display: flex;
-  gap: 10px;
   flex-wrap: wrap;
 }
 
-.searchInput,
+.input,
 .select,
 .textarea {
-  border: 1px solid var(--border);
-  background: var(--panel);
-  color: var(--text);
+  width: 100%;
+  border: 1px solid var(--nc-border);
+  background: var(--nc-surface-2);
+  color: var(--nc-text);
   border-radius: 10px;
+  padding: 12px;
 }
 
-.searchInput {
-  min-width: 260px;
+.input {
   flex: 1;
-  padding: 12px 14px;
+  min-width: 260px;
 }
 
 .select {
-  padding: 12px 14px;
+  width: 180px;
 }
 
-.secondaryBtn,
-.primaryBtn,
-.linkBtn,
-.linkBtnDanger {
-  cursor: pointer;
-}
-
-.secondaryBtn {
-  border: 1px solid var(--border);
-  background: var(--panel);
-  color: var(--text);
-  padding: 10px 12px;
-  border-radius: 10px;
-}
-
-.primaryBtn {
-  border: none;
-  background: var(--primary);
-  color: white;
-  padding: 10px 14px;
-  border-radius: 10px;
-}
-
-.statsBar {
-  display: flex;
-  gap: 18px;
-  flex-wrap: wrap;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  color: var(--muted);
+.textarea {
+  resize: vertical;
+  min-height: 100px;
 }
 
 .composer {
   display: grid;
-  gap: 10px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  padding: 14px;
-  border-radius: 14px;
-}
-
-.textarea {
-  width: 100%;
-  resize: vertical;
-  padding: 12px 14px;
+  gap: 12px;
 }
 
 .composerActions {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
+}
+
+.primaryBtn,
+.secondaryBtn,
+.linkBtn,
+.linkBtnDanger {
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.primaryBtn {
+  background: var(--nc-primary);
+  color: white;
+  padding: 10px 14px;
+}
+
+.secondaryBtn {
+  background: var(--nc-surface-2);
+  color: var(--nc-text);
+  border: 1px solid var(--nc-border);
+  padding: 10px 14px;
+}
+
+.linkBtn,
+.linkBtnDanger {
+  background: transparent;
+  padding: 0;
+  font-size: 14px;
+}
+
+.linkBtn {
+  color: var(--nc-primary);
+}
+
+.linkBtnDanger {
+  color: var(--nc-danger);
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 12px;
 }
 
 .commentCard {
-  background: var(--panel);
-  border: 1px solid var(--border);
+  background: var(--nc-surface);
+  border: 1px solid var(--nc-border);
   border-radius: 14px;
-  padding: 14px;
-  margin-top: 12px;
+  padding: 16px;
+  margin-top: 14px;
 }
 
 .commentHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .meta {
-  color: var(--muted);
+  color: var(--nc-text-soft);
+  font-size: 13px;
 }
 
 .commentText {
-  margin: 12px 0;
+  margin: 12px 0 0;
   line-height: 1.6;
 }
 
-.actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.linkBtn,
-.linkBtnDanger {
-  border: none;
-  background: transparent;
-  padding: 0;
-  font-weight: 500;
-}
-
-.linkBtn {
-  color: var(--primary);
-}
-
-.linkBtnDanger {
-  color: var(--danger);
+.deletedText {
+  color: var(--nc-text-soft);
+  font-style: italic;
 }
 
 .replyBox {
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .replies {
   margin-top: 12px;
-  border-left: 2px solid var(--border);
+  border-left: 2px solid var(--nc-border);
   padding-left: 8px;
 }
 
 .emptyState {
-  border: 1px dashed var(--border);
-  border-radius: 12px;
-  padding: 24px;
   text-align: center;
-  color: var(--muted);
-  background: var(--panel);
+  padding: 30px 20px;
+  border: 1px dashed var(--nc-border);
+  border-radius: 14px;
+  color: var(--nc-text-soft);
 }
 
 .docsSection {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px;
-  background: var(--panel);
-}
-
-.docsSection h3 {
-  margin-top: 0;
-  margin-bottom: 12px;
+  background: var(--nc-surface);
+  border: 1px solid var(--nc-border);
+  border-radius: 14px;
+  padding: 16px;
 }
 
 .docsList {
-  margin: 0;
-  padding-left: 20px;
-  color: var(--muted);
+  margin: 12px 0 0;
+  padding-left: 18px;
   display: grid;
   gap: 8px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    padding: 14px;
+  }
+
+  .commentCard {
+    padding: 14px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .select {
+    width: 100%;
+  }
 }

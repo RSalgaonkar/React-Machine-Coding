@@ -27,7 +27,5 @@ export const filterCommentsByQuery = (
     return null;
   };
 
-  return comments
-    .map(filterNode)
-    .filter((item): item is CommentNode => item !== null);
+  return comments.map(filterNode).filter((item): item is CommentNode => item !== null);
 };

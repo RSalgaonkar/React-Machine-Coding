@@ -68,6 +68,7 @@ export const toggleLikeOnComment = (
   return comments.map((comment) => {
     if (comment.id === targetId) {
       const nextLiked = !comment.isLiked;
+
       return {
         ...comment,
         isLiked: nextLiked,

@@ -1,15 +1,12 @@
+import { nestedCommentsDocs } from '../docs/nestedCommentsDocs';
 import styles from './NestedComments.module.css';
 
-interface Props {
-  items: string[];
-}
-
-export default function CommentsDocsSection({ items }: Props) {
+export default function CommentsDocsSection() {
   return (
     <section className={styles.docsSection}>
-      <h3>What this feature demonstrates</h3>
+      <h3>Feature Notes</h3>
       <ul className={styles.docsList}>
-        {items.map((item) => (
+        {nestedCommentsDocs.map((item) => (
           <li key={item}>{item}</li>
         ))}
       </ul>

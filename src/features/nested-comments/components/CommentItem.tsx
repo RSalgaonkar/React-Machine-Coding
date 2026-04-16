@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { CommentNode } from '../types';
 import { formatRelativeTime } from '../utils/commentsHelpers';
 import CommentActions from './CommentActions';
@@ -24,7 +25,7 @@ interface Props {
   onToggleLike: (commentId: string) => void;
 }
 
-export default function CommentItem({
+function CommentItemComponent({
   comment,
   level,
   replyDrafts,
@@ -48,7 +49,10 @@ export default function CommentItem({
   const isEditing = editModeMap[comment.id] ?? false;
 
   return (
-    <article className={styles.commentCard} style={{ marginLeft: `${level * 20}px` }}>
+    <article
+      className={styles.commentCard}
+      style={{ marginLeft: `${Math.min(level * 20, 60)}px` }}
+    >
       <div className={styles.commentHeader}>
         <div>
           <strong>{comment.author}</strong>
@@ -61,12 +65,15 @@ export default function CommentItem({
           value={editDrafts[comment.id] ?? ''}
           placeholder="Edit comment..."
           submitLabel="Save"
+          label="Edit comment"
           onChange={(value) => onSetEditDraft(comment.id, value)}
           onSubmit={() => onSaveEdit(comment.id)}
           onCancel={() => onToggleEditMode(comment.id)}
         />
       ) : (
-        <p className={styles.commentText}>{comment.text}</p>
+        <p className={`${styles.commentText} ${comment.isDeleted ? styles.deletedText : ''}`}>
+          {comment.text}
+        </p>
       )}
 
       <CommentActions
@@ -88,6 +95,7 @@ export default function CommentItem({
             value={replyDrafts[comment.id] ?? ''}
             placeholder="Write a reply..."
             submitLabel="Reply"
+            label="Reply to comment"
             onChange={(value) => onSetReplyDraft(comment.id, value)}
             onSubmit={() => onSubmitReply(comment.id)}
             onCancel={() => onToggleReplyBox(comment.id)}
@@ -120,3 +128,6 @@ export default function CommentItem({
     </article>
   );
 }
+
+const CommentItem = memo(CommentItemComponent);
+export default CommentItem;

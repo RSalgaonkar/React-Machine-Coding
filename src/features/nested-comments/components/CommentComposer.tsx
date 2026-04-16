@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import styles from './NestedComments.module.css';
 
 interface Props {
@@ -8,6 +8,7 @@ interface Props {
   onSubmit: (value: string) => void;
   onCancel?: () => void;
   onChange?: (value: string) => void;
+  label?: string;
 }
 
 export default function CommentComposer({
@@ -17,8 +18,10 @@ export default function CommentComposer({
   onSubmit,
   onCancel,
   onChange,
+  label = 'Comment input',
 }: Props) {
   const [localValue, setLocalValue] = useState('');
+  const textareaId = useId();
 
   const controlled = typeof value === 'string';
   const currentValue = controlled ? value : localValue;
@@ -40,7 +43,12 @@ export default function CommentComposer({
 
   return (
     <div className={styles.composer}>
+      <label htmlFor={textareaId} className={styles.srOnly}>
+        {label}
+      </label>
+
       <textarea
+        id={textareaId}
         className={styles.textarea}
         placeholder={placeholder}
         value={currentValue}
@@ -52,6 +60,7 @@ export default function CommentComposer({
         <button type="button" className={styles.primaryBtn} onClick={handleSubmit}>
           {submitLabel}
         </button>
+
         {onCancel ? (
           <button type="button" className={styles.secondaryBtn} onClick={onCancel}>
             Cancel

@@ -1,7 +1,12 @@
-import { nestedCommentsDocs } from '../docs/nestedCommentsDocs';
+import { useMemo } from 'react';
 import { useCommentsTheme } from '../hooks/useCommentsTheme';
 import { useNestedComments } from '../hooks/useNestedComments';
-import { countComments, countVisibleComments } from '../utils/commentsHelpers';
+import {
+  countComments,
+  countLeafComments,
+  countTotalLikes,
+  countVisibleComments,
+} from '../utils/commentsHelpers';
 import CommentComposer from './CommentComposer';
 import CommentList from './CommentList';
 import CommentsDocsSection from './CommentsDocsSection';
@@ -12,6 +17,8 @@ import CommentsToolbar from './CommentsToolbar';
 import styles from './NestedComments.module.css';
 
 export default function CommentsShowcase() {
+  const { theme, toggleTheme } = useCommentsTheme();
+
   const {
     comments,
     filteredComments,
@@ -36,62 +43,72 @@ export default function CommentsShowcase() {
     addRootComment,
   } = useNestedComments();
 
-  const { theme, toggleTheme } = useCommentsTheme();
+  const totalComments = useMemo(() => countComments(comments), [comments]);
+  const visibleComments = useMemo(() => countVisibleComments(comments), [comments]);
+  const totalLikes = useMemo(() => countTotalLikes(comments), [comments]);
+  const leafComments = useMemo(() => countLeafComments(comments), [comments]);
 
   return (
-    <div className={styles.showcase} data-theme={theme}>
-      <CommentsHeader
-        title="Advanced Nested Comments"
-        subtitle="Recursive comment threads with reply, edit, delete, like, search, sorting, and theme support."
-      />
-
-      <CommentsToolbar
-        search={search}
-        sortBy={sortBy}
-        theme={theme}
-        onSearchChange={setSearch}
-        onSortChange={setSortBy}
-        onToggleTheme={toggleTheme}
-      />
+    <section
+      className={styles.wrapper}
+      data-theme={theme}
+    >
+      <CommentsHeader theme={theme} onToggleTheme={toggleTheme} />
 
       <CommentsStatsBar
-        totalComments={countComments(comments)}
-        visibleComments={countVisibleComments(filteredComments)}
+        totalComments={totalComments}
+        visibleComments={visibleComments}
+        totalLikes={totalLikes}
+        leafComments={leafComments}
       />
 
-      <CommentComposer
-        placeholder="Write a root comment..."
-        submitLabel="Add Comment"
-        onSubmit={addRootComment}
-      />
-
-      {filteredComments.length ? (
-        <CommentList
-          comments={filteredComments}
-          level={0}
-          replyDrafts={replyDrafts}
-          editDrafts={editDrafts}
-          expandedMap={expandedMap}
-          replyBoxMap={replyBoxMap}
-          editModeMap={editModeMap}
-          onSetReplyDraft={setReplyDraft}
-          onSetEditDraft={setEditDraft}
-          onToggleReplies={toggleReplies}
-          onToggleReplyBox={toggleReplyBox}
-          onToggleEditMode={toggleEditMode}
-          onSubmitReply={submitReply}
-          onSaveEdit={saveEdit}
-          onDelete={deleteComment}
-          onToggleLike={toggleLike}
+      <div className={styles.panel}>
+        <h3 className={styles.sectionTitle}>Add Root Comment</h3>
+        <CommentComposer
+          placeholder="Start a new discussion..."
+          submitLabel="Add Comment"
+          label="Root comment input"
+          onSubmit={addRootComment}
         />
-      ) : (
-        <CommentsEmptyState
-          title="No comments found"
-          description="Try a different search query or add a new root comment."
-        />
-      )}
+      </div>
 
-      <CommentsDocsSection items={nestedCommentsDocs} />
-    </div>
+      <div className={styles.panel}>
+        <CommentsToolbar
+          search={search}
+          sortBy={sortBy}
+          onSearchChange={setSearch}
+          onSortChange={setSortBy}
+        />
+      </div>
+
+      <div className={styles.panel}>
+        <h3 className={styles.sectionTitle}>Comment Thread</h3>
+
+        {filteredComments.length === 0 ? (
+          <CommentsEmptyState hasSearch={Boolean(search.trim())} />
+        ) : (
+          <CommentList
+            comments={filteredComments}
+            level={0}
+            replyDrafts={replyDrafts}
+            editDrafts={editDrafts}
+            expandedMap={expandedMap}
+            replyBoxMap={replyBoxMap}
+            editModeMap={editModeMap}
+            onSetReplyDraft={setReplyDraft}
+            onSetEditDraft={setEditDraft}
+            onToggleReplies={toggleReplies}
+            onToggleReplyBox={toggleReplyBox}
+            onToggleEditMode={toggleEditMode}
+            onSubmitReply={submitReply}
+            onSaveEdit={saveEdit}
+            onDelete={deleteComment}
+            onToggleLike={toggleLike}
+          />
+        )}
+      </div>
+
+      <CommentsDocsSection />
+    </section>
   );
 }
