@@ -1,18 +1,27 @@
 import type {
+  ActivityState,
   CommentNode,
   EditDraftMap,
   EditModeMap,
   ExpandedMap,
   ReplyBoxMap,
   ReplyDraftMap,
+  SortBy,
 } from '../types';
 
 export type NestedCommentsAction =
-  | { type: 'SET_COMMENTS'; payload: CommentNode[] }
-  | { type: 'SET_SEARCH'; payload: string }
-  | { type: 'SET_SORT_BY'; payload: 'newest' | 'oldest' | 'most-liked' }
-  | { type: 'SET_REPLY_DRAFTS'; payload: ReplyDraftMap }
-  | { type: 'SET_EDIT_DRAFTS'; payload: EditDraftMap }
-  | { type: 'SET_EXPANDED_MAP'; payload: ExpandedMap }
-  | { type: 'SET_REPLY_BOX_MAP'; payload: ReplyBoxMap }
-  | { type: 'SET_EDIT_MODE_MAP'; payload: EditModeMap };
+  | { type: 'comments/set'; payload: CommentNode[] }
+  | { type: 'search/set'; payload: string }
+  | { type: 'sort/set'; payload: SortBy }
+  | { type: 'replyDraft/set'; payload: { commentId: string; value: string } }
+  | { type: 'replyDraft/clear'; payload: { commentId: string } }
+  | { type: 'editDraft/set'; payload: { commentId: string; value: string } }
+  | { type: 'editDraft/clear'; payload: { commentId: string } }
+  | { type: 'replyBox/toggle'; payload: { commentId: string } }
+  | { type: 'replyBox/close'; payload: { commentId: string } }
+  | { type: 'editMode/toggle'; payload: { commentId: string } }
+  | { type: 'editMode/close'; payload: { commentId: string } }
+  | { type: 'expanded/toggle'; payload: { commentId: string } }
+  | { type: 'expanded/setMany'; payload: ExpandedMap }
+  | { type: 'activity/set'; payload: ActivityState }
+  | { type: 'activity/clear' };

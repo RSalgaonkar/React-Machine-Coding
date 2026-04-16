@@ -5,6 +5,8 @@ interface Props {
   sortBy: 'newest' | 'oldest' | 'most-liked';
   onSearchChange: (value: string) => void;
   onSortChange: (value: 'newest' | 'oldest' | 'most-liked') => void;
+  onExpandAll: () => void;
+  onCollapseAll: () => void;
 }
 
 export default function CommentsToolbar({
@@ -12,6 +14,8 @@ export default function CommentsToolbar({
   sortBy,
   onSearchChange,
   onSortChange,
+  onExpandAll,
+  onCollapseAll,
 }: Props) {
   return (
     <div className={styles.toolbar}>
@@ -21,6 +25,7 @@ export default function CommentsToolbar({
         value={search}
         placeholder="Search comments by text or author..."
         onChange={(e) => onSearchChange(e.target.value)}
+        aria-label="Search comments"
       />
 
       <select
@@ -29,11 +34,26 @@ export default function CommentsToolbar({
         onChange={(e) =>
           onSortChange(e.target.value as 'newest' | 'oldest' | 'most-liked')
         }
+        aria-label="Sort comments"
       >
         <option value="newest">Newest</option>
         <option value="oldest">Oldest</option>
         <option value="most-liked">Most Liked</option>
       </select>
+
+      <button type="button" className={styles.secondaryBtn} onClick={onExpandAll}>
+        Expand All
+      </button>
+
+      <button type="button" className={styles.secondaryBtn} onClick={onCollapseAll}>
+        Collapse All
+      </button>
+
+      {search ? (
+        <button type="button" className={styles.secondaryBtn} onClick={() => onSearchChange('')}>
+          Clear Search
+        </button>
+      ) : null}
     </div>
   );
 }

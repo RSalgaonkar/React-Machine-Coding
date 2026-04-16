@@ -1,15 +1,20 @@
-import { useMemo, useReducer } from 'react';
+import { useEffect, useMemo, useReducer } from 'react';
 import { commentsData } from '../data/commentsData';
 import { nestedCommentsReducer } from '../reducer/nestedCommentsReducer';
 import { filterCommentsByQuery } from '../utils/commentsFilter';
 import {
   addReplyToComment,
+  buildExpandedMapForAll,
+  getCommentDepth,
+  MAX_COMMENT_DEPTH,
+  restoreDeletedComment,
   softDeleteComment,
   sortCommentsRecursively,
   toggleLikeOnComment,
+  togglePinRootComment,
   updateCommentText,
 } from '../utils/commentsTree';
-import type { CommentNode, NestedCommentsState } from '../types';
+import type { CommentNode, NestedCommentsState, SortBy } from '../types';
 
 const initialState: NestedCommentsState = {
   comments: commentsData,
@@ -20,6 +25,11 @@ const initialState: NestedCommentsState = {
   expandedMap: {},
   replyBoxMap: {},
   editModeMap: {},
+  activity: {
+    type: null,
+    message: '',
+    timestamp: null,
+  },
 };
 
 export const useNestedComments = () => {
@@ -35,77 +45,116 @@ export const useNestedComments = () => {
     [sortedComments, state.search]
   );
 
-  const setSearch = (value: string) => {
-    dispatch({ type: 'SET_SEARCH', payload: value });
+  useEffect(() => {
+    if (!state.activity.timestamp) return;
+
+    const timer = window.setTimeout(() => {
+      dispatch({ type: 'activity/clear' });
+    }, 2500);
+
+    return () => window.clearTimeout(timer);
+  }, [state.activity.timestamp]);
+
+  const setActivity = (type: NestedCommentsState['activity']['type'], message: string) => {
+    dispatch({
+      type: 'activity/set',
+      payload: {
+        type,
+        message,
+        timestamp: Date.now(),
+      },
+    });
   };
 
-  const setSortBy = (value: 'newest' | 'oldest' | 'most-liked') => {
-    dispatch({ type: 'SET_SORT_BY', payload: value });
+  const setSearch = (value: string) => {
+    dispatch({ type: 'search/set', payload: value });
+  };
+
+  const setSortBy = (value: SortBy) => {
+    dispatch({ type: 'sort/set', payload: value });
   };
 
   const setReplyDraft = (commentId: string, value: string) => {
     dispatch({
-      type: 'SET_REPLY_DRAFTS',
-      payload: {
-        ...state.replyDrafts,
-        [commentId]: value,
-      },
+      type: 'replyDraft/set',
+      payload: { commentId, value },
     });
   };
 
   const setEditDraft = (commentId: string, value: string) => {
     dispatch({
-      type: 'SET_EDIT_DRAFTS',
-      payload: {
-        ...state.editDrafts,
-        [commentId]: value,
-      },
+      type: 'editDraft/set',
+      payload: { commentId, value },
     });
   };
 
   const toggleReplies = (commentId: string) => {
     dispatch({
-      type: 'SET_EXPANDED_MAP',
-      payload: {
-        ...state.expandedMap,
-        [commentId]: !state.expandedMap[commentId],
-      },
+      type: 'expanded/toggle',
+      payload: { commentId },
     });
+  };
+
+  const expandAll = () => {
+    dispatch({
+      type: 'expanded/setMany',
+      payload: buildExpandedMapForAll(state.comments, true),
+    });
+    setActivity('expanded-all', 'Expanded all replies');
+  };
+
+  const collapseAll = () => {
+    dispatch({
+      type: 'expanded/setMany',
+      payload: buildExpandedMapForAll(state.comments, false),
+    });
+    setActivity('collapsed-all', 'Collapsed all replies');
   };
 
   const toggleReplyBox = (commentId: string) => {
     dispatch({
-      type: 'SET_REPLY_BOX_MAP',
-      payload: {
-        ...state.replyBoxMap,
-        [commentId]: !state.replyBoxMap[commentId],
-      },
+      type: 'replyBox/toggle',
+      payload: { commentId },
+    });
+  };
+
+  const closeReplyBox = (commentId: string) => {
+    dispatch({
+      type: 'replyBox/close',
+      payload: { commentId },
     });
   };
 
   const toggleEditMode = (commentId: string, existingText?: string) => {
     dispatch({
-      type: 'SET_EDIT_MODE_MAP',
-      payload: {
-        ...state.editModeMap,
-        [commentId]: !state.editModeMap[commentId],
-      },
+      type: 'editMode/toggle',
+      payload: { commentId },
     });
 
-    if (existingText !== undefined && !state.editModeMap[commentId]) {
+    if (existingText !== undefined) {
       dispatch({
-        type: 'SET_EDIT_DRAFTS',
-        payload: {
-          ...state.editDrafts,
-          [commentId]: existingText,
-        },
+        type: 'editDraft/set',
+        payload: { commentId, value: existingText },
       });
     }
+  };
+
+  const closeEditMode = (commentId: string) => {
+    dispatch({
+      type: 'editMode/close',
+      payload: { commentId },
+    });
   };
 
   const submitReply = (parentId: string) => {
     const text = state.replyDrafts[parentId]?.trim();
     if (!text) return;
+
+    const depth = getCommentDepth(state.comments, parentId) ?? 0;
+    if (depth >= MAX_COMMENT_DEPTH) {
+      setActivity('added-reply', `Reply limit reached. Max depth is ${MAX_COMMENT_DEPTH + 1} levels.`);
+      return;
+    }
 
     const reply: CommentNode = {
       id: crypto.randomUUID(),
@@ -114,37 +163,34 @@ export const useNestedComments = () => {
       createdAt: new Date().toISOString(),
       likes: 0,
       isLiked: false,
+      isPinned: false,
       children: [],
     };
 
     dispatch({
-      type: 'SET_COMMENTS',
+      type: 'comments/set',
       payload: addReplyToComment(state.comments, parentId, reply),
     });
 
     dispatch({
-      type: 'SET_REPLY_DRAFTS',
-      payload: {
-        ...state.replyDrafts,
-        [parentId]: '',
-      },
+      type: 'replyDraft/clear',
+      payload: { commentId: parentId },
     });
 
     dispatch({
-      type: 'SET_REPLY_BOX_MAP',
-      payload: {
-        ...state.replyBoxMap,
-        [parentId]: false,
-      },
+      type: 'replyBox/close',
+      payload: { commentId: parentId },
     });
 
     dispatch({
-      type: 'SET_EXPANDED_MAP',
+      type: 'expanded/setMany',
       payload: {
         ...state.expandedMap,
         [parentId]: true,
       },
     });
+
+    setActivity('added-reply', 'Reply added successfully');
   };
 
   const saveEdit = (commentId: string) => {
@@ -152,31 +198,43 @@ export const useNestedComments = () => {
     if (!nextText) return;
 
     dispatch({
-      type: 'SET_COMMENTS',
+      type: 'comments/set',
       payload: updateCommentText(state.comments, commentId, nextText),
     });
 
     dispatch({
-      type: 'SET_EDIT_MODE_MAP',
-      payload: {
-        ...state.editModeMap,
-        [commentId]: false,
-      },
+      type: 'editMode/close',
+      payload: { commentId },
     });
+
+    setActivity('edited', 'Comment updated');
   };
 
   const deleteComment = (commentId: string) => {
     dispatch({
-      type: 'SET_COMMENTS',
+      type: 'comments/set',
       payload: softDeleteComment(state.comments, commentId),
     });
+
+    setActivity('deleted', 'Comment deleted');
+  };
+
+  const restoreComment = (commentId: string) => {
+    dispatch({
+      type: 'comments/set',
+      payload: restoreDeletedComment(state.comments, commentId),
+    });
+
+    setActivity('restored', 'Comment restored');
   };
 
   const toggleLike = (commentId: string) => {
     dispatch({
-      type: 'SET_COMMENTS',
+      type: 'comments/set',
       payload: toggleLikeOnComment(state.comments, commentId),
     });
+
+    setActivity('liked', 'Reaction updated');
   };
 
   const addRootComment = (text: string) => {
@@ -190,13 +248,34 @@ export const useNestedComments = () => {
       createdAt: new Date().toISOString(),
       likes: 0,
       isLiked: false,
+      isPinned: false,
       children: [],
     };
 
     dispatch({
-      type: 'SET_COMMENTS',
+      type: 'comments/set',
       payload: [comment, ...state.comments],
     });
+
+    setActivity('added-root', 'New root comment added');
+  };
+
+  const pinRootComment = (commentId: string) => {
+    dispatch({
+      type: 'comments/set',
+      payload: togglePinRootComment(state.comments, commentId),
+    });
+
+    setActivity('pinned', 'Pin state updated');
+  };
+
+  const copyCommentText = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setActivity('copied', 'Comment text copied');
+    } catch {
+      setActivity('copied', 'Unable to copy comment text');
+    }
   };
 
   return {
@@ -209,17 +288,26 @@ export const useNestedComments = () => {
     expandedMap: state.expandedMap,
     replyBoxMap: state.replyBoxMap,
     editModeMap: state.editModeMap,
+    activity: state.activity,
+    maxDepth: MAX_COMMENT_DEPTH,
     setSearch,
     setSortBy,
     setReplyDraft,
     setEditDraft,
     toggleReplies,
+    expandAll,
+    collapseAll,
     toggleReplyBox,
+    closeReplyBox,
     toggleEditMode,
+    closeEditMode,
     submitReply,
     saveEdit,
     deleteComment,
+    restoreComment,
     toggleLike,
     addRootComment,
+    pinRootComment,
+    copyCommentText,
   };
 };

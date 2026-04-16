@@ -17,6 +17,9 @@
   --nc-primary: #0d6efd;
   --nc-primary-soft: #e7f1ff;
   --nc-danger: #dc3545;
+  --nc-success: #198754;
+  --nc-warning: #ffc107;
+  --nc-mark-bg: #fff3bf;
 }
 
 .wrapper[data-theme='dark'] {
@@ -29,6 +32,9 @@
   --nc-primary: #66a3ff;
   --nc-primary-soft: #1c2e4d;
   --nc-danger: #ff7b88;
+  --nc-success: #5dd39e;
+  --nc-warning: #ffd166;
+  --nc-mark-bg: #6b5600;
 }
 
 .header {
@@ -49,6 +55,15 @@
   color: var(--nc-text-soft);
 }
 
+.activityBar {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--nc-primary-soft);
+  color: var(--nc-text);
+  border: 1px solid var(--nc-border);
+  font-size: 14px;
+}
+
 .panel {
   background: var(--nc-surface);
   border: 1px solid var(--nc-border);
@@ -58,6 +73,19 @@
 
 .sectionTitle {
   margin: 0 0 14px;
+}
+
+.threadHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.depthHint {
+  font-size: 13px;
+  color: var(--nc-text-soft);
 }
 
 .statsGrid {
@@ -116,6 +144,28 @@
   gap: 12px;
 }
 
+.composerMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hintText {
+  font-size: 13px;
+  color: var(--nc-text-soft);
+}
+
+.counterText {
+  font-size: 13px;
+  color: var(--nc-text-soft);
+}
+
+.counterDanger {
+  color: var(--nc-danger);
+  font-weight: 600;
+}
+
 .composerActions {
   display: flex;
   gap: 10px;
@@ -136,6 +186,11 @@
   background: var(--nc-primary);
   color: white;
   padding: 10px 14px;
+}
+
+.primaryBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .secondaryBtn {
@@ -167,6 +222,11 @@
   margin-top: 12px;
 }
 
+.treeRoot {
+  display: grid;
+  gap: 2px;
+}
+
 .commentCard {
   background: var(--nc-surface);
   border: 1px solid var(--nc-border);
@@ -175,10 +235,22 @@
   margin-top: 14px;
 }
 
+.commentCard:focus-within {
+  outline: 2px solid var(--nc-primary);
+  outline-offset: 2px;
+}
+
 .commentHeader {
   display: flex;
   justify-content: space-between;
   gap: 10px;
+}
+
+.authorRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .meta {
@@ -186,9 +258,33 @@
   font-size: 13px;
 }
 
+.badge,
+.badgeMuted {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.badge {
+  background: var(--nc-primary-soft);
+  color: var(--nc-primary);
+}
+
+.badgeMuted {
+  background: var(--nc-surface-2);
+  color: var(--nc-text-soft);
+}
+
 .commentText {
   margin: 12px 0 0;
   line-height: 1.6;
+}
+
+.commentText mark {
+  background: var(--nc-mark-bg);
+  color: inherit;
+  padding: 0 2px;
+  border-radius: 4px;
 }
 
 .deletedText {
@@ -252,5 +348,10 @@
 
   .select {
     width: 100%;
+  }
+
+  .composerMeta {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

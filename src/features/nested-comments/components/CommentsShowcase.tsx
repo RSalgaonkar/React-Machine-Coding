@@ -3,12 +3,15 @@ import { useCommentsTheme } from '../hooks/useCommentsTheme';
 import { useNestedComments } from '../hooks/useNestedComments';
 import {
   countComments,
+  countDeletedComments,
   countLeafComments,
+  countPinnedComments,
   countTotalLikes,
   countVisibleComments,
 } from '../utils/commentsHelpers';
 import CommentComposer from './CommentComposer';
 import CommentList from './CommentList';
+import CommentsActivityBar from './CommentsActivityBar';
 import CommentsDocsSection from './CommentsDocsSection';
 import CommentsEmptyState from './CommentsEmptyState';
 import CommentsHeader from './CommentsHeader';
@@ -29,37 +32,48 @@ export default function CommentsShowcase() {
     expandedMap,
     replyBoxMap,
     editModeMap,
+    activity,
+    maxDepth,
     setSearch,
     setSortBy,
     setReplyDraft,
     setEditDraft,
     toggleReplies,
+    expandAll,
+    collapseAll,
     toggleReplyBox,
+    closeReplyBox,
     toggleEditMode,
+    closeEditMode,
     submitReply,
     saveEdit,
     deleteComment,
+    restoreComment,
     toggleLike,
     addRootComment,
+    pinRootComment,
+    copyCommentText,
   } = useNestedComments();
 
   const totalComments = useMemo(() => countComments(comments), [comments]);
   const visibleComments = useMemo(() => countVisibleComments(comments), [comments]);
   const totalLikes = useMemo(() => countTotalLikes(comments), [comments]);
   const leafComments = useMemo(() => countLeafComments(comments), [comments]);
+  const deletedComments = useMemo(() => countDeletedComments(comments), [comments]);
+  const pinnedComments = useMemo(() => countPinnedComments(comments), [comments]);
 
   return (
-    <section
-      className={styles.wrapper}
-      data-theme={theme}
-    >
+    <section className={styles.wrapper} data-theme={theme}>
       <CommentsHeader theme={theme} onToggleTheme={toggleTheme} />
+      <CommentsActivityBar message={activity.message} />
 
       <CommentsStatsBar
         totalComments={totalComments}
         visibleComments={visibleComments}
         totalLikes={totalLikes}
         leafComments={leafComments}
+        deletedComments={deletedComments}
+        pinnedComments={pinnedComments}
       />
 
       <div className={styles.panel}>
@@ -78,33 +92,47 @@ export default function CommentsShowcase() {
           sortBy={sortBy}
           onSearchChange={setSearch}
           onSortChange={setSortBy}
+          onExpandAll={expandAll}
+          onCollapseAll={collapseAll}
         />
       </div>
 
       <div className={styles.panel}>
-        <h3 className={styles.sectionTitle}>Comment Thread</h3>
+        <div className={styles.threadHeaderRow}>
+          <h3 className={styles.sectionTitle}>Comment Thread</h3>
+          <span className={styles.depthHint}>Max reply depth: {maxDepth + 1}</span>
+        </div>
 
         {filteredComments.length === 0 ? (
           <CommentsEmptyState hasSearch={Boolean(search.trim())} />
         ) : (
-          <CommentList
-            comments={filteredComments}
-            level={0}
-            replyDrafts={replyDrafts}
-            editDrafts={editDrafts}
-            expandedMap={expandedMap}
-            replyBoxMap={replyBoxMap}
-            editModeMap={editModeMap}
-            onSetReplyDraft={setReplyDraft}
-            onSetEditDraft={setEditDraft}
-            onToggleReplies={toggleReplies}
-            onToggleReplyBox={toggleReplyBox}
-            onToggleEditMode={toggleEditMode}
-            onSubmitReply={submitReply}
-            onSaveEdit={saveEdit}
-            onDelete={deleteComment}
-            onToggleLike={toggleLike}
-          />
+          <div role="tree" aria-label="Nested comments thread" className={styles.treeRoot}>
+            <CommentList
+              comments={filteredComments}
+              level={0}
+              maxDepth={maxDepth}
+              search={search}
+              replyDrafts={replyDrafts}
+              editDrafts={editDrafts}
+              expandedMap={expandedMap}
+              replyBoxMap={replyBoxMap}
+              editModeMap={editModeMap}
+              onSetReplyDraft={setReplyDraft}
+              onSetEditDraft={setEditDraft}
+              onToggleReplies={toggleReplies}
+              onToggleReplyBox={toggleReplyBox}
+              onCloseReplyBox={closeReplyBox}
+              onToggleEditMode={toggleEditMode}
+              onCloseEditMode={closeEditMode}
+              onSubmitReply={submitReply}
+              onSaveEdit={saveEdit}
+              onDelete={deleteComment}
+              onRestore={restoreComment}
+              onToggleLike={toggleLike}
+              onPin={pinRootComment}
+              onCopy={copyCommentText}
+            />
+          </div>
         )}
       </div>
 

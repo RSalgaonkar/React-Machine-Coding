@@ -24,19 +24,30 @@ export const countVisibleComments = (comments: CommentNode[]): number => {
     if (comment.isDeleted) {
       return acc + countVisibleComments(comment.children);
     }
+
     return acc + 1 + countVisibleComments(comment.children);
   }, 0);
 };
 
 export const countTotalLikes = (comments: CommentNode[]): number => {
-  return comments.reduce((acc, comment) => {
-    return acc + comment.likes + countTotalLikes(comment.children);
-  }, 0);
+  return comments.reduce((acc, comment) => acc + comment.likes + countTotalLikes(comment.children), 0);
 };
 
 export const countLeafComments = (comments: CommentNode[]): number => {
   return comments.reduce((acc, comment) => {
     if (comment.children.length === 0) return acc + 1;
     return acc + countLeafComments(comment.children);
+  }, 0);
+};
+
+export const countDeletedComments = (comments: CommentNode[]): number => {
+  return comments.reduce((acc, comment) => {
+    return acc + (comment.isDeleted ? 1 : 0) + countDeletedComments(comment.children);
+  }, 0);
+};
+
+export const countPinnedComments = (comments: CommentNode[]): number => {
+  return comments.reduce((acc, comment) => {
+    return acc + (comment.isPinned ? 1 : 0) + countPinnedComments(comment.children);
   }, 0);
 };

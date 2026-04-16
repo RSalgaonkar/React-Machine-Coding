@@ -6,29 +6,126 @@ export const nestedCommentsReducer = (
   action: NestedCommentsAction
 ): NestedCommentsState => {
   switch (action.type) {
-    case 'SET_COMMENTS':
-      return { ...state, comments: action.payload };
+    case 'comments/set':
+      return {
+        ...state,
+        comments: action.payload,
+      };
 
-    case 'SET_SEARCH':
-      return { ...state, search: action.payload };
+    case 'search/set':
+      return {
+        ...state,
+        search: action.payload,
+      };
 
-    case 'SET_SORT_BY':
-      return { ...state, sortBy: action.payload };
+    case 'sort/set':
+      return {
+        ...state,
+        sortBy: action.payload,
+      };
 
-    case 'SET_REPLY_DRAFTS':
-      return { ...state, replyDrafts: action.payload };
+    case 'replyDraft/set':
+      return {
+        ...state,
+        replyDrafts: {
+          ...state.replyDrafts,
+          [action.payload.commentId]: action.payload.value,
+        },
+      };
 
-    case 'SET_EDIT_DRAFTS':
-      return { ...state, editDrafts: action.payload };
+    case 'replyDraft/clear':
+      return {
+        ...state,
+        replyDrafts: {
+          ...state.replyDrafts,
+          [action.payload.commentId]: '',
+        },
+      };
 
-    case 'SET_EXPANDED_MAP':
-      return { ...state, expandedMap: action.payload };
+    case 'editDraft/set':
+      return {
+        ...state,
+        editDrafts: {
+          ...state.editDrafts,
+          [action.payload.commentId]: action.payload.value,
+        },
+      };
 
-    case 'SET_REPLY_BOX_MAP':
-      return { ...state, replyBoxMap: action.payload };
+    case 'editDraft/clear':
+      return {
+        ...state,
+        editDrafts: {
+          ...state.editDrafts,
+          [action.payload.commentId]: '',
+        },
+      };
 
-    case 'SET_EDIT_MODE_MAP':
-      return { ...state, editModeMap: action.payload };
+    case 'replyBox/toggle':
+      return {
+        ...state,
+        replyBoxMap: {
+          ...state.replyBoxMap,
+          [action.payload.commentId]: !state.replyBoxMap[action.payload.commentId],
+        },
+      };
+
+    case 'replyBox/close':
+      return {
+        ...state,
+        replyBoxMap: {
+          ...state.replyBoxMap,
+          [action.payload.commentId]: false,
+        },
+      };
+
+    case 'editMode/toggle':
+      return {
+        ...state,
+        editModeMap: {
+          ...state.editModeMap,
+          [action.payload.commentId]: !state.editModeMap[action.payload.commentId],
+        },
+      };
+
+    case 'editMode/close':
+      return {
+        ...state,
+        editModeMap: {
+          ...state.editModeMap,
+          [action.payload.commentId]: false,
+        },
+      };
+
+    case 'expanded/toggle':
+      return {
+        ...state,
+        expandedMap: {
+          ...state.expandedMap,
+          [action.payload.commentId]: !state.expandedMap[action.payload.commentId],
+        },
+      };
+
+    case 'expanded/setMany':
+      return {
+        ...state,
+        expandedMap: action.payload,
+      };
+
+    case 'activity/set':
+      return {
+        ...state,
+        activity: action.payload,
+      };
+
+    case 'activity/clear':
+      return {
+        ...state,
+        activity: {
+          type: null,
+          message: '',
+          timestamp: null,
+        },
+      };
 
     default:
       return state;

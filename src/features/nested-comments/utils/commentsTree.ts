@@ -1,4 +1,6 @@
-import type { CommentNode } from '../types';
+import type { CommentNode, ExpandedMap, SortBy } from '../types';
+
+export const MAX_COMMENT_DEPTH = 4;
 
 export const addReplyToComment = (
   comments: CommentNode[],
@@ -61,6 +63,27 @@ export const softDeleteComment = (
   });
 };
 
+export const restoreDeletedComment = (
+  comments: CommentNode[],
+  targetId: string
+): CommentNode[] => {
+  return comments.map((comment) => {
+    if (comment.id === targetId) {
+      return {
+        ...comment,
+        text: '[Restored comment — please edit content]',
+        author: 'You',
+        isDeleted: false,
+      };
+    }
+
+    return {
+      ...comment,
+      children: restoreDeletedComment(comment.children, targetId),
+    };
+  });
+};
+
 export const toggleLikeOnComment = (
   comments: CommentNode[],
   targetId: string
@@ -83,11 +106,30 @@ export const toggleLikeOnComment = (
   });
 };
 
+export const togglePinRootComment = (
+  comments: CommentNode[],
+  targetId: string
+): CommentNode[] => {
+  return comments.map((comment) => {
+    if (comment.id === targetId) {
+      return {
+        ...comment,
+        isPinned: !comment.isPinned,
+      };
+    }
+
+    return comment;
+  });
+};
+
 export const sortCommentsRecursively = (
   comments: CommentNode[],
-  sortBy: 'newest' | 'oldest' | 'most-liked'
+  sortBy: SortBy
 ): CommentNode[] => {
   const sorted = [...comments].sort((a, b) => {
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+
     if (sortBy === 'newest') {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     }
@@ -103,4 +145,35 @@ export const sortCommentsRecursively = (
     ...comment,
     children: sortCommentsRecursively(comment.children, sortBy),
   }));
+};
+
+export const getCommentDepth = (
+  comments: CommentNode[],
+  targetId: string,
+  currentDepth = 0
+): number | null => {
+  for (const comment of comments) {
+    if (comment.id === targetId) return currentDepth;
+
+    const childDepth = getCommentDepth(comment.children, targetId, currentDepth + 1);
+    if (childDepth !== null) return childDepth;
+  }
+
+  return null;
+};
+
+export const flattenComments = (comments: CommentNode[]): CommentNode[] => {
+  return comments.flatMap((comment) => [comment, ...flattenComments(comment.children)]);
+};
+
+export const buildExpandedMapForAll = (
+  comments: CommentNode[],
+  expanded: boolean
+): ExpandedMap => {
+  return flattenComments(comments).reduce<ExpandedMap>((acc, comment) => {
+    if (comment.children.length > 0) {
+      acc[comment.id] = expanded;
+    }
+    return acc;
+  }, {});
 };

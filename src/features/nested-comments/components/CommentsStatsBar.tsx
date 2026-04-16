@@ -5,6 +5,8 @@ interface Props {
   visibleComments: number;
   totalLikes: number;
   leafComments: number;
+  deletedComments: number;
+  pinnedComments: number;
 }
 
 export default function CommentsStatsBar({
@@ -12,6 +14,8 @@ export default function CommentsStatsBar({
   visibleComments,
   totalLikes,
   leafComments,
+  deletedComments,
+  pinnedComments,
 }: Props) {
   return (
     <div className={styles.statsGrid}>
@@ -33,6 +37,16 @@ export default function CommentsStatsBar({
       <div className={styles.statCard}>
         <span className={styles.statLabel}>Leaf Replies</span>
         <strong>{leafComments}</strong>
+      </div>
+
+      <div className={styles.statCard}>
+        <span className={styles.statLabel}>Deleted</span>
+        <strong>{deletedComments}</strong>
+      </div>
+
+      <div className={styles.statCard}>
+        <span className={styles.statLabel}>Pinned</span>
+        <strong>{pinnedComments}</strong>
       </div>
     </div>
   );
