@@ -1,12 +1,7 @@
-import {
-  useQuery,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query';
 import { useEffect } from 'react';
+import { useQuery, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import styles from './ProductDetail.module.css';
-import { number } from 'framer-motion';
 
 interface Props {
   productId: number;
@@ -38,9 +33,8 @@ export default function ProductDetail({ productId }: Props) {
   });
 
   const { data: categories } = useQuery<CategoriesResponse>({
-    queryKey: ['categories', product.category],
+    queryKey: ['categories'],
     queryFn: api.getCategories,
-    enabled: !!product.category,
   });
 
   useEffect(() => {
@@ -49,10 +43,17 @@ export default function ProductDetail({ productId }: Props) {
       queryFn: () => api.getProduct(productId + 1),
     });
 
-    queryClient.prefetchInfiniteQuery<ProductsResponse, Error, ProductsResponse, string[], number>({
+    queryClient.prefetchInfiniteQuery<
+      ProductsResponse,
+      Error,
+      ProductsResponse,
+      [string, string, string],
+      number
+    >({
       queryKey: ['products', 'related', product.category],
       initialPageParam: 0,
-      queryFn: ({ pageParam }) => api.getProducts({ pageParam }),
+      queryFn: ({ pageParam }) =>
+        api.getProducts({ pageParam: pageParam as number }),
     });
   }, [productId, product.category, queryClient]);
 

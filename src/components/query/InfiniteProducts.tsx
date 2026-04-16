@@ -14,15 +14,13 @@ export default function InfiniteProducts() {
     error,
   } = useInfiniteQuery({
     queryKey: ['products', 'infinite'],
-    queryFn: api.getProducts,
+    queryFn: ({ pageParam = 0 }) => api.getProducts({ pageParam }),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
-      // Return next cursor or false if no more pages
-      return lastPage.skip + lastPage.limit < lastPage.total 
-        ? lastPage.skip / lastPage.limit 
-        : undefined
+      const nextSkip = lastPage.skip + lastPage.limit
+      return nextSkip < lastPage.total ? nextSkip : undefined
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   })
 
   const { ref, inView } = useInView({
