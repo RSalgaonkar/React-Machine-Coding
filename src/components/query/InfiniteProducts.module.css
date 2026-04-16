@@ -1,0 +1,55 @@
+.container {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 20px;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.stats {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: white;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.price {
+  font-size: 18px;
+  font-weight: bold;
+  color: #059669;
+}
+
+.category {
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.sentinel {
+  text-align: center;
+  padding: 20px;
+  color: #64748b;
+}
+
+.error {
+  color: #ef4444;
+  padding: 12px;
+  background: #fef2f2;
+  border-radius: 8px;
+}

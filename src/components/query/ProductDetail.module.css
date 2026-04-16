@@ -1,0 +1,32 @@
+.detail {
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  display: grid;
+  gap: 14px;
+}
+
+.price {
+  font-size: 20px;
+  font-weight: 700;
+  color: #16a34a;
+  margin: 0;
+}
+
+.related {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  color: #334155;
+}
+
+.prefetchStatus {
+  font-size: 14px;
+  color: #475569;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
