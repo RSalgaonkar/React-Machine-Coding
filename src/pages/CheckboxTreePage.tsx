@@ -17,15 +17,13 @@
 //   );
 // }
 
-import { CheckboxTree, checkboxTreeData } from '../features/checkbox-tree';
+import { checkboxTreeData } from '../features/checkbox-tree';
+import TreeShowcase from '../features/checkbox-tree/components/TreeShowcase';
 
 export default function CheckboxTreePage() {
   return (
     <div className="page">
-      <CheckboxTree
-        data={checkboxTreeData}
-        title="Checkbox Tree — Portfolio Edition"
-      />
+      <TreeShowcase data={checkboxTreeData} />
     </div>
   );
 }

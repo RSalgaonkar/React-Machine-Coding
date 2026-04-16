@@ -32,10 +32,8 @@ export const checkboxTreeData: TreeNode[] = [
       {
         id: 'databases',
         label: 'Databases',
-        children: [
-          { id: 'mongodb', label: 'MongoDB' },
-          { id: 'postgresql', label: 'PostgreSQL' },
-        ],
+        hasAsyncChildren: true,
+        isChildrenLoaded: false,
       },
     ],
   },
@@ -45,6 +43,12 @@ export const checkboxTreeData: TreeNode[] = [
     children: [
       { id: 'docker', label: 'Docker' },
       { id: 'ci-cd', label: 'CI/CD', disabled: true },
+      {
+        id: 'cloud',
+        label: 'Cloud',
+        hasAsyncChildren: true,
+        isChildrenLoaded: false,
+      },
     ],
   },
 ];

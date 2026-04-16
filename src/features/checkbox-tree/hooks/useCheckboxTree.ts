@@ -10,9 +10,14 @@ import {
 import { filterTreeByQuery } from '../utils/treeSearch';
 import { getSelectedChips } from '../utils/treeSelection';
 import { parseCsvParam, stringifyCsvParam, uniqueValues } from '../utils/urlState';
+import { asyncChildrenMap } from '../data/asyncChildren';
+import { updateNodeChildren } from '../utils/treeAsync';
 
-export const useCheckboxTree = (treeData: TreeNode[]) => {
+export const useCheckboxTree = (initialTreeData: TreeNode[]) => {
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const [treeDataState, setTreeDataState] = useState<TreeNode[]>(initialTreeData);
+  const [loadingNodeIds, setLoadingNodeIds] = useState<Set<string>>(new Set());
 
   const [search, setSearch] = useState(searchParams.get('q') ?? '');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(
@@ -22,14 +27,14 @@ export const useCheckboxTree = (treeData: TreeNode[]) => {
     new Set(
       parseCsvParam(searchParams.get('expanded')).length
         ? parseCsvParam(searchParams.get('expanded'))
-        : getExpandableNodeIds(treeData).slice(0, 1)
+        : getExpandableNodeIds(initialTreeData).slice(0, 1)
     )
   );
   const [focusedId, setFocusedId] = useState<string | null>(null);
 
   const filteredTree = useMemo(
-    () => filterTreeByQuery(treeData, search),
-    [treeData, search]
+    () => filterTreeByQuery(treeDataState, search),
+    [treeDataState, search]
   );
 
   const visibleNodes = useMemo(
@@ -38,28 +43,31 @@ export const useCheckboxTree = (treeData: TreeNode[]) => {
   );
 
   const selectedChips = useMemo(
-    () => getSelectedChips(treeData, selectedIds),
-    [treeData, selectedIds]
+    () => getSelectedChips(treeDataState, selectedIds),
+    [treeDataState, selectedIds]
   );
 
   useEffect(() => {
     const nextSelected = stringifyCsvParam(uniqueValues([...selectedIds]));
     const nextExpanded = stringifyCsvParam(uniqueValues([...expandedIds]));
 
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
+    setSearchParams(
+      (prev) => {
+        const params = new URLSearchParams(prev);
 
-      if (search.trim()) params.set('q', search.trim());
-      else params.delete('q');
+        if (search.trim()) params.set('q', search.trim());
+        else params.delete('q');
 
-      if (nextSelected) params.set('selected', nextSelected);
-      else params.delete('selected');
+        if (nextSelected) params.set('selected', nextSelected);
+        else params.delete('selected');
 
-      if (nextExpanded) params.set('expanded', nextExpanded);
-      else params.delete('expanded');
+        if (nextExpanded) params.set('expanded', nextExpanded);
+        else params.delete('expanded');
 
-      return params;
-    }, { replace: true });
+        return params;
+      },
+      { replace: true }
+    );
   }, [search, selectedIds, expandedIds, setSearchParams]);
 
   useEffect(() => {
@@ -67,7 +75,32 @@ export const useCheckboxTree = (treeData: TreeNode[]) => {
     setExpandedIds(new Set(getExpandableNodeIds(filteredTree)));
   }, [search, filteredTree]);
 
-  const toggleExpand = (nodeId: string) => {
+  const loadAsyncChildren = async (nodeId: string) => {
+    const node = findNodeById(treeDataState, nodeId);
+    if (!node || !node.hasAsyncChildren || node.isChildrenLoaded) return;
+
+    setLoadingNodeIds((prev) => new Set(prev).add(nodeId));
+
+    await new Promise((resolve) => setTimeout(resolve, 700));
+
+    const children = asyncChildrenMap[nodeId] ?? [];
+
+    setTreeDataState((prev) => updateNodeChildren(prev, nodeId, children));
+
+    setLoadingNodeIds((prev) => {
+      const next = new Set(prev);
+      next.delete(nodeId);
+      return next;
+    });
+  };
+
+  const toggleExpand = async (nodeId: string) => {
+    const node = findNodeById(treeDataState, nodeId);
+
+    if (node?.hasAsyncChildren && !node.isChildrenLoaded) {
+      await loadAsyncChildren(nodeId);
+    }
+
     setExpandedIds((prev) => {
       const next = new Set(prev);
       if (next.has(nodeId)) next.delete(nodeId);
@@ -85,12 +118,12 @@ export const useCheckboxTree = (treeData: TreeNode[]) => {
   };
 
   const toggleCheck = (nodeId: string, checked: boolean) => {
-    const node = findNodeById(treeData, nodeId);
+    const node = findNodeById(treeDataState, nodeId);
     if (!node) return;
 
     const impactedIds = getDescendantIds(node);
     const enabledIds = impactedIds.filter((id) => {
-      const item = findNodeById(treeData, id);
+      const item = findNodeById(treeDataState, id);
       return !item?.disabled;
     });
 
@@ -109,10 +142,11 @@ export const useCheckboxTree = (treeData: TreeNode[]) => {
   };
 
   const removeSelectedChip = (nodeId: string) => {
-    const node = findNodeById(treeData, nodeId);
+    const node = findNodeById(treeDataState, nodeId);
     if (!node) return;
 
     const impactedIds = getDescendantIds(node);
+
     setSelectedIds((prev) => {
       const next = new Set(prev);
       impactedIds.forEach((id) => next.delete(id));
@@ -156,6 +190,8 @@ export const useCheckboxTree = (treeData: TreeNode[]) => {
   };
 
   return {
+    treeDataState,
+    loadingNodeIds,
     search,
     setSearch,
     selectedIds,

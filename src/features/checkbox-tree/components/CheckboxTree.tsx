@@ -1,5 +1,6 @@
 import type { TreeNode } from '../types';
 import { useCheckboxTree } from '../hooks/useCheckboxTree';
+import { useCheckboxTreeTheme } from '../hooks/useCheckboxTreeTheme';
 import SelectedChipsPanel from './SelectedChipsPanel';
 import TreeNodeRow from './TreeNodeRow';
 import TreeToolbar from './TreeToolbar';
@@ -15,6 +16,7 @@ export default function CheckboxTree({
   title = 'Production Checkbox Tree',
 }: Props) {
   const {
+    loadingNodeIds,
     search,
     setSearch,
     selectedIds,
@@ -35,15 +37,17 @@ export default function CheckboxTree({
     focusLast,
   } = useCheckboxTree(data);
 
+  const { theme, toggleTheme } = useCheckboxTreeTheme();
+
   return (
-    <section className={styles.shell}>
+    <section className={`${styles.shell} ${theme === 'dark' ? styles.dark : ''}`}>
       <div className={styles.hero}>
         <div>
           <span className={styles.eyebrow}>Portfolio Component</span>
           <h2 className={styles.title}>{title}</h2>
           <p className={styles.subtitle}>
-            Accessible recursive tree with URL state, animated expansion,
-            removable selection chips, and keyboard navigation.
+            Accessible recursive tree with URL state, async loading,
+            animated expansion, removable chips, and keyboard navigation.
           </p>
         </div>
 
@@ -66,6 +70,8 @@ export default function CheckboxTree({
             onSearchChange={setSearch}
             onExpandAll={expandAll}
             onCollapseAll={collapseAll}
+            theme={theme}
+            onToggleTheme={toggleTheme}
           />
 
           <div className={styles.treeContainer} role="tree" aria-label="Checkbox tree">
@@ -77,6 +83,7 @@ export default function CheckboxTree({
                   level={1}
                   selectedIds={selectedIds}
                   expandedIds={expandedIds}
+                  loadingNodeIds={loadingNodeIds}
                   focusedId={focusedId}
                   onFocus={setFocusedId}
                   onToggleExpand={toggleExpand}

@@ -9,9 +9,10 @@ interface Props {
   level: number;
   selectedIds: Set<string>;
   expandedIds: Set<string>;
+  loadingNodeIds: Set<string>;
   focusedId: string | null;
   onFocus: (id: string) => void;
-  onToggleExpand: (id: string) => void;
+  onToggleExpand: (id: string) => void | Promise<void>;
   onToggleCheck: (id: string, checked: boolean) => void;
   onArrowDown: () => void;
   onArrowUp: () => void;
@@ -24,6 +25,7 @@ export default function TreeNodeRow({
   level,
   selectedIds,
   expandedIds,
+  loadingNodeIds,
   focusedId,
   onFocus,
   onToggleExpand,
@@ -33,8 +35,9 @@ export default function TreeNodeRow({
   onHome,
   onEnd,
 }: Props) {
-  const hasChildren = Boolean(node.children?.length);
+  const hasChildren = Boolean(node.children?.length || node.hasAsyncChildren);
   const isExpanded = expandedIds.has(node.id);
+  const isLoading = loadingNodeIds.has(node.id);
   const selectionState = getSelectionState(node, selectedIds);
   const isChecked = selectionState === 'checked';
   const isIndeterminate = selectionState === 'indeterminate';
@@ -118,7 +121,7 @@ export default function TreeNodeRow({
           aria-label={isExpanded ? `Collapse ${node.label}` : `Expand ${node.label}`}
           disabled={!hasChildren}
         >
-          {hasChildren ? (isExpanded ? '▾' : '▸') : '•'}
+          {isLoading ? '…' : hasChildren ? (isExpanded ? '▾' : '▸') : '•'}
         </button>
 
         <label className={styles.label}>
@@ -136,13 +139,14 @@ export default function TreeNodeRow({
       {hasChildren && (
         <AnimatedTreeChildren isVisible={isExpanded}>
           <div role="group">
-            {node.children!.map((child) => (
+            {node.children?.map((child) => (
               <TreeNodeRow
                 key={child.id}
                 node={child}
                 level={level + 1}
                 selectedIds={selectedIds}
                 expandedIds={expandedIds}
+                loadingNodeIds={loadingNodeIds}
                 focusedId={focusedId}
                 onFocus={onFocus}
                 onToggleExpand={onToggleExpand}

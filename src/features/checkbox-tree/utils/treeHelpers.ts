@@ -17,8 +17,10 @@ export const getExpandableNodeIds = (nodes: TreeNode[]): string[] => {
 
   const traverse = (items: TreeNode[]) => {
     for (const item of items) {
-      if (item.children?.length) {
+      if (item.children?.length || item.hasAsyncChildren) {
         ids.push(item.id);
+      }
+      if (item.children?.length) {
         traverse(item.children);
       }
     }
@@ -51,7 +53,7 @@ export const flattenVisibleTree = (
   const result: VisibleTreeNode[] = [];
 
   for (const node of nodes) {
-    const hasChildren = Boolean(node.children?.length);
+    const hasChildren = Boolean(node.children?.length || node.hasAsyncChildren);
     const isExpanded = expandedIds.has(node.id);
 
     result.push({
@@ -65,9 +67,9 @@ export const flattenVisibleTree = (
       originalNode: node,
     });
 
-    if (hasChildren && isExpanded) {
+    if (hasChildren && isExpanded && node.children?.length) {
       result.push(
-        ...flattenVisibleTree(node.children!, expandedIds, level + 1, node.id)
+        ...flattenVisibleTree(node.children, expandedIds, level + 1, node.id)
       );
     }
   }
