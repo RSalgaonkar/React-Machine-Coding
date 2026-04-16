@@ -1,0 +1,15 @@
+.node {
+  margin: 8px 0;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.children {
+  padding-left: 24px;
+  margin-top: 8px;
+  border-left: 1px dashed #ccc;
+}

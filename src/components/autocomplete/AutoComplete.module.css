@@ -1,0 +1,29 @@
+.wrapper {
+  position: relative;
+  max-width: 500px;
+}
+
+.dropdown {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: white;
+  overflow: hidden;
+}
+
+.item {
+  padding: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item:hover,
+.active {
+  background: #e7f1ff;
+}

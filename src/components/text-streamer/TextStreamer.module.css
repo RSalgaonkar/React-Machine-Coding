@@ -1,0 +1,29 @@
+.wrapper {
+  display: grid;
+  gap: 16px;
+}
+
+.output {
+  min-height: 100px;
+  padding: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 18px;
+  line-height: 1.6;
+  background: #fafafa;
+}
+
+.cursor {
+  animation: blink 1s infinite;
+  font-weight: bold;
+}
+
+.controls {
+  max-width: 320px;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
