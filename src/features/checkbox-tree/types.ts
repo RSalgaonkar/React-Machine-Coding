@@ -24,3 +24,12 @@ export interface SelectedChip {
 }
 
 export type TreeTheme = 'light' | 'dark';
+
+export interface CheckboxTreeState {
+  treeData: TreeNode[];
+  selectedIds: Set<string>;
+  expandedIds: Set<string>;
+  loadingNodeIds: Set<string>;
+  search: string;
+  focusedId: string | null;
+}

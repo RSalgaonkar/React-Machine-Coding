@@ -1,3 +1,1 @@
-export { default as CheckboxTree } from './components/CheckboxTree';
-export { checkboxTreeData } from './data/treeData';
-export type { TreeNode, SelectedChip, TreeTheme } from './types';
+export { default as TreeShowcase } from './components/TreeShowcase';

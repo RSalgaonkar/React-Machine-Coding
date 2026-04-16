@@ -1,15 +1,12 @@
 import type { TreeNode } from '../types';
 
-export const filterTreeByQuery = (
-  nodes: TreeNode[],
-  query: string
-): TreeNode[] => {
-  const normalizedQuery = query.trim().toLowerCase();
+export const filterTreeByQuery = (nodes: TreeNode[], query: string): TreeNode[] => {
+  const normalized = query.trim().toLowerCase();
 
-  if (!normalizedQuery) return nodes;
+  if (!normalized) return nodes;
 
   const filterNode = (node: TreeNode): TreeNode | null => {
-    const selfMatches = node.label.toLowerCase().includes(normalizedQuery);
+    const selfMatches = node.label.toLowerCase().includes(normalized);
     const filteredChildren =
       node.children
         ?.map(filterNode)

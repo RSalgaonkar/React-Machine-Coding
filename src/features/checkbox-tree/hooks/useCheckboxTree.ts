@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useReducer } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import type { TreeNode } from '../types';
+import type { CheckboxTreeState, TreeNode } from '../types';
+import { asyncChildrenMap } from '../data/asyncChildren';
+import { checkboxTreeReducer } from '../reducer/checkboxTreeReducer';
 import {
   findNodeById,
   flattenVisibleTree,
@@ -9,53 +11,61 @@ import {
 } from '../utils/treeHelpers';
 import { filterTreeByQuery } from '../utils/treeSearch';
 import { getSelectedChips } from '../utils/treeSelection';
-import { parseCsvParam, stringifyCsvParam, uniqueValues } from '../utils/urlState';
-import { asyncChildrenMap } from '../data/asyncChildren';
 import { updateNodeChildren } from '../utils/treeAsync';
+import { parseCsvParam, stringifyCsvParam, uniqueValues } from '../utils/urlState';
+
+const buildInitialState = (
+  treeData: TreeNode[],
+  selected: string[],
+  expanded: string[],
+  search: string
+): CheckboxTreeState => ({
+  treeData,
+  selectedIds: new Set(selected),
+  expandedIds: new Set(
+    expanded.length ? expanded : getExpandableNodeIds(treeData).slice(0, 1)
+  ),
+  loadingNodeIds: new Set(),
+  search,
+  focusedId: null,
+});
 
 export const useCheckboxTree = (initialTreeData: TreeNode[]) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [treeDataState, setTreeDataState] = useState<TreeNode[]>(initialTreeData);
-  const [loadingNodeIds, setLoadingNodeIds] = useState<Set<string>>(new Set());
+  const initialSelected = parseCsvParam(searchParams.get('selected'));
+  const initialExpanded = parseCsvParam(searchParams.get('expanded'));
+  const initialSearch = searchParams.get('q') ?? '';
 
-  const [search, setSearch] = useState(searchParams.get('q') ?? '');
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(
-    new Set(parseCsvParam(searchParams.get('selected')))
+  const [state, dispatch] = useReducer(
+    checkboxTreeReducer,
+    buildInitialState(initialTreeData, initialSelected, initialExpanded, initialSearch)
   );
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(
-    new Set(
-      parseCsvParam(searchParams.get('expanded')).length
-        ? parseCsvParam(searchParams.get('expanded'))
-        : getExpandableNodeIds(initialTreeData).slice(0, 1)
-    )
-  );
-  const [focusedId, setFocusedId] = useState<string | null>(null);
 
   const filteredTree = useMemo(
-    () => filterTreeByQuery(treeDataState, search),
-    [treeDataState, search]
+    () => filterTreeByQuery(state.treeData, state.search),
+    [state.treeData, state.search]
   );
 
   const visibleNodes = useMemo(
-    () => flattenVisibleTree(filteredTree, expandedIds),
-    [filteredTree, expandedIds]
+    () => flattenVisibleTree(filteredTree, state.expandedIds),
+    [filteredTree, state.expandedIds]
   );
 
   const selectedChips = useMemo(
-    () => getSelectedChips(treeDataState, selectedIds),
-    [treeDataState, selectedIds]
+    () => getSelectedChips(state.treeData, state.selectedIds),
+    [state.treeData, state.selectedIds]
   );
 
   useEffect(() => {
-    const nextSelected = stringifyCsvParam(uniqueValues([...selectedIds]));
-    const nextExpanded = stringifyCsvParam(uniqueValues([...expandedIds]));
+    const nextSelected = stringifyCsvParam(uniqueValues([...state.selectedIds]));
+    const nextExpanded = stringifyCsvParam(uniqueValues([...state.expandedIds]));
 
     setSearchParams(
       (prev) => {
         const params = new URLSearchParams(prev);
 
-        if (search.trim()) params.set('q', search.trim());
+        if (state.search.trim()) params.set('q', state.search.trim());
         else params.delete('q');
 
         if (nextSelected) params.set('selected', nextSelected);
@@ -68,135 +78,159 @@ export const useCheckboxTree = (initialTreeData: TreeNode[]) => {
       },
       { replace: true }
     );
-  }, [search, selectedIds, expandedIds, setSearchParams]);
+  }, [state.search, state.selectedIds, state.expandedIds, setSearchParams]);
 
   useEffect(() => {
-    if (!search.trim()) return;
-    setExpandedIds(new Set(getExpandableNodeIds(filteredTree)));
-  }, [search, filteredTree]);
+    if (!state.search.trim()) return;
+    dispatch({
+      type: 'SET_EXPANDED_IDS',
+      payload: new Set(getExpandableNodeIds(filteredTree)),
+    });
+  }, [state.search, filteredTree]);
+
+  const setSearch = (value: string) => {
+    dispatch({ type: 'SET_SEARCH', payload: value });
+  };
+
+  const setFocusedId = (value: string | null) => {
+    dispatch({ type: 'SET_FOCUSED_ID', payload: value });
+  };
 
   const loadAsyncChildren = async (nodeId: string) => {
-    const node = findNodeById(treeDataState, nodeId);
+    const node = findNodeById(state.treeData, nodeId);
     if (!node || !node.hasAsyncChildren || node.isChildrenLoaded) return;
 
-    setLoadingNodeIds((prev) => new Set(prev).add(nodeId));
+    const nextLoading = new Set(state.loadingNodeIds);
+    nextLoading.add(nodeId);
+    dispatch({ type: 'SET_LOADING_NODE_IDS', payload: nextLoading });
 
     await new Promise((resolve) => setTimeout(resolve, 700));
 
     const children = asyncChildrenMap[nodeId] ?? [];
+    const nextTree = updateNodeChildren(state.treeData, nodeId, children);
 
-    setTreeDataState((prev) => updateNodeChildren(prev, nodeId, children));
+    dispatch({ type: 'SET_TREE_DATA', payload: nextTree });
 
-    setLoadingNodeIds((prev) => {
-      const next = new Set(prev);
-      next.delete(nodeId);
-      return next;
-    });
+    const clearedLoading = new Set(nextLoading);
+    clearedLoading.delete(nodeId);
+    dispatch({ type: 'SET_LOADING_NODE_IDS', payload: clearedLoading });
   };
 
   const toggleExpand = async (nodeId: string) => {
-    const node = findNodeById(treeDataState, nodeId);
+    const node = findNodeById(state.treeData, nodeId);
 
     if (node?.hasAsyncChildren && !node.isChildrenLoaded) {
       await loadAsyncChildren(nodeId);
     }
 
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(nodeId)) next.delete(nodeId);
-      else next.add(nodeId);
-      return next;
-    });
+    const next = new Set(state.expandedIds);
+
+    if (next.has(nodeId)) next.delete(nodeId);
+    else next.add(nodeId);
+
+    dispatch({ type: 'SET_EXPANDED_IDS', payload: next });
   };
 
   const expandAll = () => {
-    setExpandedIds(new Set(getExpandableNodeIds(filteredTree)));
+    dispatch({
+      type: 'SET_EXPANDED_IDS',
+      payload: new Set(getExpandableNodeIds(filteredTree)),
+    });
   };
 
   const collapseAll = () => {
-    setExpandedIds(new Set());
+    dispatch({
+      type: 'SET_EXPANDED_IDS',
+      payload: new Set(),
+    });
   };
 
   const toggleCheck = (nodeId: string, checked: boolean) => {
-    const node = findNodeById(treeDataState, nodeId);
+    const node = findNodeById(state.treeData, nodeId);
     if (!node) return;
 
     const impactedIds = getDescendantIds(node);
     const enabledIds = impactedIds.filter((id) => {
-      const item = findNodeById(treeDataState, id);
+      const item = findNodeById(state.treeData, id);
       return !item?.disabled;
     });
 
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      enabledIds.forEach((id) => {
-        if (checked) next.add(id);
-        else next.delete(id);
-      });
-      return next;
+    const next = new Set(state.selectedIds);
+
+    enabledIds.forEach((id) => {
+      if (checked) next.add(id);
+      else next.delete(id);
     });
+
+    dispatch({ type: 'SET_SELECTED_IDS', payload: next });
   };
 
   const clearAllSelected = () => {
-    setSelectedIds(new Set());
+    dispatch({ type: 'RESET_SELECTED_IDS' });
   };
 
   const removeSelectedChip = (nodeId: string) => {
-    const node = findNodeById(treeDataState, nodeId);
+    const node = findNodeById(state.treeData, nodeId);
     if (!node) return;
 
     const impactedIds = getDescendantIds(node);
+    const next = new Set(state.selectedIds);
 
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      impactedIds.forEach((id) => next.delete(id));
-      return next;
-    });
+    impactedIds.forEach((id) => next.delete(id));
+
+    dispatch({ type: 'SET_SELECTED_IDS', payload: next });
   };
 
   const focusNext = () => {
     if (!visibleNodes.length) return;
-    if (!focusedId) {
-      setFocusedId(visibleNodes[0].id);
+
+    if (!state.focusedId) {
+      dispatch({ type: 'SET_FOCUSED_ID', payload: visibleNodes[0].id });
       return;
     }
 
-    const currentIndex = visibleNodes.findIndex((node) => node.id === focusedId);
+    const currentIndex = visibleNodes.findIndex((item) => item.id === state.focusedId);
     const nextIndex =
       currentIndex < visibleNodes.length - 1 ? currentIndex + 1 : currentIndex;
 
-    setFocusedId(visibleNodes[nextIndex].id);
+    dispatch({ type: 'SET_FOCUSED_ID', payload: visibleNodes[nextIndex].id });
   };
 
   const focusPrev = () => {
     if (!visibleNodes.length) return;
-    if (!focusedId) {
-      setFocusedId(visibleNodes[0].id);
+
+    if (!state.focusedId) {
+      dispatch({ type: 'SET_FOCUSED_ID', payload: visibleNodes[0].id });
       return;
     }
 
-    const currentIndex = visibleNodes.findIndex((node) => node.id === focusedId);
+    const currentIndex = visibleNodes.findIndex((item) => item.id === state.focusedId);
     const prevIndex = currentIndex > 0 ? currentIndex - 1 : currentIndex;
 
-    setFocusedId(visibleNodes[prevIndex].id);
+    dispatch({ type: 'SET_FOCUSED_ID', payload: visibleNodes[prevIndex].id });
   };
 
   const focusFirst = () => {
-    if (visibleNodes.length) setFocusedId(visibleNodes[0].id);
+    if (!visibleNodes.length) return;
+    dispatch({ type: 'SET_FOCUSED_ID', payload: visibleNodes[0].id });
   };
 
   const focusLast = () => {
-    if (visibleNodes.length) setFocusedId(visibleNodes[visibleNodes.length - 1].id);
+    if (!visibleNodes.length) return;
+    dispatch({
+      type: 'SET_FOCUSED_ID',
+      payload: visibleNodes[visibleNodes.length - 1].id,
+    });
   };
 
   return {
-    treeDataState,
-    loadingNodeIds,
-    search,
+    treeDataState: state.treeData,
+    loadingNodeIds: state.loadingNodeIds,
+    search: state.search,
     setSearch,
-    selectedIds,
-    expandedIds,
-    focusedId,
+    selectedIds: state.selectedIds,
+    expandedIds: state.expandedIds,
+    focusedId: state.focusedId,
     setFocusedId,
     filteredTree,
     visibleNodes,

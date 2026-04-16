@@ -1,31 +1,26 @@
 import type { SelectedChip, TreeNode } from '../types';
 
-export const flattenTreeNodes = (nodes: TreeNode[]): TreeNode[] => {
-  const result: TreeNode[] = [];
-
-  const walk = (items: TreeNode[]) => {
-    for (const item of items) {
-      result.push(item);
-      if (item.children?.length) {
-        walk(item.children);
-      }
-    }
-  };
-
-  walk(nodes);
-  return result;
-};
-
 export const getSelectedChips = (
   nodes: TreeNode[],
   selectedIds: Set<string>
 ): SelectedChip[] => {
-  const flatNodes = flattenTreeNodes(nodes);
+  const chips: SelectedChip[] = [];
 
-  return flatNodes
-    .filter((node) => selectedIds.has(node.id))
-    .map((node) => ({
-      id: node.id,
-      label: node.label,
-    }));
+  const walk = (items: TreeNode[]) => {
+    items.forEach((item) => {
+      if (selectedIds.has(item.id)) {
+        chips.push({
+          id: item.id,
+          label: item.label,
+        });
+      }
+
+      if (item.children?.length) {
+        walk(item.children);
+      }
+    });
+  };
+
+  walk(nodes);
+  return chips;
 };

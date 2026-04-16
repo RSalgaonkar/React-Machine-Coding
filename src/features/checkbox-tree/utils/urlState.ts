@@ -1,5 +1,5 @@
 export const parseCsvParam = (value: string | null): string[] => {
-  if (!value) return [];
+  if (!value?.trim()) return [];
   return value
     .split(',')
     .map((item) => item.trim())
@@ -11,5 +11,5 @@ export const stringifyCsvParam = (values: string[]): string => {
 };
 
 export const uniqueValues = (values: string[]): string[] => {
-  return Array.from(new Set(values));
+  return [...new Set(values)];
 };

@@ -1,25 +1,87 @@
-import type { TreeNode } from '../types';
+import { checkboxTreeData } from '../data/treeData';
+import { checkboxTreeDocs } from '../docs/checkboxTreeDocs';
+import { useCheckboxTree } from '../hooks/useCheckboxTree';
+import { useCheckboxTreeTheme } from '../hooks/useCheckboxTreeTheme';
+import { countAllNodes } from '../utils/treeHelpers';
 import CheckboxTree from './CheckboxTree';
+import SelectedChipsPanel from './SelectedChipsPanel';
+import TreeDocsSection from './TreeDocsSection';
+import TreeHeader from './TreeHeader';
+import TreeStatsBar from './TreeStatsBar';
+import TreeToolbar from './TreeToolbar';
 import styles from './CheckboxTree.module.css';
 
-interface Props {
-  data: TreeNode[];
-}
+export default function TreeShowcase() {
+  const {
+    treeDataState,
+    loadingNodeIds,
+    search,
+    setSearch,
+    selectedIds,
+    expandedIds,
+    focusedId,
+    setFocusedId,
+    filteredTree,
+    visibleNodes,
+    selectedChips,
+    toggleExpand,
+    expandAll,
+    collapseAll,
+    toggleCheck,
+    clearAllSelected,
+    removeSelectedChip,
+    focusNext,
+    focusPrev,
+    focusFirst,
+    focusLast,
+  } = useCheckboxTree(checkboxTreeData);
 
-export default function TreeShowcase({ data }: Props) {
+  const { theme, toggleTheme } = useCheckboxTreeTheme();
+
   return (
-    <section className={styles.showcaseSection}>
-      <div className={styles.showcaseIntro}>
-        <span className={styles.showcaseBadge}>Featured React Component</span>
-        <h1 className={styles.showcaseTitle}>Advanced Checkbox Tree</h1>
-        <p className={styles.showcaseDescription}>
-          A production-style recursive tree built with React, TypeScript,
-          Framer Motion, URL persistence, lazy-loaded children, keyboard
-          navigation, and testable business logic.
-        </p>
-      </div>
+    <div className={styles.showcase} data-theme={theme}>
+      <TreeHeader
+        title="Advanced Checkbox Tree"
+        subtitle="Recursive selection, indeterminate state, async expansion, keyboard navigation, theme support, and URL-synced state."
+      />
 
-      <CheckboxTree data={data} title="Checkbox Tree — Premium Demo" />
-    </section>
+      <TreeToolbar
+        search={search}
+        onSearchChange={setSearch}
+        onExpandAll={expandAll}
+        onCollapseAll={collapseAll}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+
+      <TreeStatsBar
+        totalNodes={countAllNodes(treeDataState)}
+        visibleNodes={visibleNodes.length}
+        selectedCount={selectedIds.size}
+      />
+
+      <SelectedChipsPanel
+        chips={selectedChips}
+        onRemove={removeSelectedChip}
+        onClearAll={clearAllSelected}
+      />
+
+      <CheckboxTree
+        tree={filteredTree}
+        selectedIds={selectedIds}
+        expandedIds={expandedIds}
+        focusedId={focusedId}
+        loadingNodeIds={loadingNodeIds}
+        onToggleExpand={toggleExpand}
+        onToggleCheck={toggleCheck}
+        onFocus={setFocusedId}
+        onFocusNext={focusNext}
+        onFocusPrev={focusPrev}
+        onFocusFirst={focusFirst}
+        onFocusLast={focusLast}
+      />
+
+      <TreeDocsSection items={checkboxTreeDocs} />
+    </div>
   );
 }

@@ -15,18 +15,19 @@ export const getDescendantIds = (node: TreeNode): string[] => {
 export const getExpandableNodeIds = (nodes: TreeNode[]): string[] => {
   const ids: string[] = [];
 
-  const traverse = (items: TreeNode[]) => {
-    for (const item of items) {
+  const walk = (items: TreeNode[]) => {
+    items.forEach((item) => {
       if (item.children?.length || item.hasAsyncChildren) {
         ids.push(item.id);
       }
+
       if (item.children?.length) {
-        traverse(item.children);
+        walk(item.children);
       }
-    }
+    });
   };
 
-  traverse(nodes);
+  walk(nodes);
   return ids;
 };
 
@@ -36,11 +37,13 @@ export const findNodeById = (
 ): TreeNode | null => {
   for (const node of nodes) {
     if (node.id === targetId) return node;
+
     if (node.children?.length) {
       const found = findNodeById(node.children, targetId);
       if (found) return found;
     }
   }
+
   return null;
 };
 
@@ -81,10 +84,16 @@ export const getSelectionState = (
   node: TreeNode,
   selectedIds: Set<string>
 ): 'checked' | 'unchecked' | 'indeterminate' => {
-  const ids = getDescendantIds(node).filter(Boolean);
+  const ids = getDescendantIds(node);
   const selectedCount = ids.filter((id) => selectedIds.has(id)).length;
 
   if (selectedCount === 0) return 'unchecked';
   if (selectedCount === ids.length) return 'checked';
   return 'indeterminate';
+};
+
+export const countAllNodes = (nodes: TreeNode[]): number => {
+  return nodes.reduce((acc, node) => {
+    return acc + 1 + (node.children?.length ? countAllNodes(node.children) : 0);
+  }, 0);
 };

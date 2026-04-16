@@ -1,116 +1,134 @@
 import type { TreeNode } from '../types';
-import { useCheckboxTree } from '../hooks/useCheckboxTree';
-import { useCheckboxTreeTheme } from '../hooks/useCheckboxTreeTheme';
-import SelectedChipsPanel from './SelectedChipsPanel';
+import AnimatedTreeChildren from './AnimatedTreeChildren';
+import EmptyTreeState from './EmptyTreeState';
 import TreeNodeRow from './TreeNodeRow';
-import TreeToolbar from './TreeToolbar';
 import styles from './CheckboxTree.module.css';
 
 interface Props {
-  data: TreeNode[];
-  title?: string;
+  tree: TreeNode[];
+  selectedIds: Set<string>;
+  expandedIds: Set<string>;
+  focusedId: string | null;
+  loadingNodeIds: Set<string>;
+  onToggleExpand: (id: string) => void;
+  onToggleCheck: (id: string, checked: boolean) => void;
+  onFocus: (id: string) => void;
+  onFocusNext: () => void;
+  onFocusPrev: () => void;
+  onFocusFirst: () => void;
+  onFocusLast: () => void;
 }
 
-export default function CheckboxTree({
-  data,
-  title = 'Production Checkbox Tree',
-}: Props) {
-  const {
-    loadingNodeIds,
-    search,
-    setSearch,
-    selectedIds,
-    expandedIds,
-    focusedId,
-    setFocusedId,
-    filteredTree,
-    selectedChips,
-    toggleExpand,
-    expandAll,
-    collapseAll,
-    toggleCheck,
-    clearAllSelected,
-    removeSelectedChip,
-    focusNext,
-    focusPrev,
-    focusFirst,
-    focusLast,
-  } = useCheckboxTree(data);
+interface NodeListProps extends Omit<Props, 'tree'> {
+  nodes: TreeNode[];
+  level: number;
+}
 
-  const { theme, toggleTheme } = useCheckboxTreeTheme();
-
+function NodeList({
+  nodes,
+  level,
+  selectedIds,
+  expandedIds,
+  focusedId,
+  loadingNodeIds,
+  onToggleExpand,
+  onToggleCheck,
+  onFocus,
+  onFocusNext,
+  onFocusPrev,
+  onFocusFirst,
+  onFocusLast,
+}: NodeListProps) {
   return (
-    <section className={`${styles.shell} ${theme === 'dark' ? styles.dark : ''}`}>
-      <div className={styles.hero}>
-        <div>
-          <span className={styles.eyebrow}>Portfolio Component</span>
-          <h2 className={styles.title}>{title}</h2>
-          <p className={styles.subtitle}>
-            Accessible recursive tree with URL state, async loading,
-            animated expansion, removable chips, and keyboard navigation.
-          </p>
-        </div>
+    <>
+      {nodes.map((node) => {
+        const isExpanded = expandedIds.has(node.id);
+        const isLoading = loadingNodeIds.has(node.id);
+        const hasChildren = Boolean(node.children?.length || node.hasAsyncChildren);
 
-        <div className={styles.statsGrid}>
-          <div className={styles.statCard}>
-            <span className={styles.statLabel}>Selected</span>
-            <strong className={styles.statValue}>{selectedIds.size}</strong>
-          </div>
-          <div className={styles.statCard}>
-            <span className={styles.statLabel}>Expanded</span>
-            <strong className={styles.statValue}>{expandedIds.size}</strong>
-          </div>
-        </div>
-      </div>
+        return (
+          <div key={node.id}>
+            <TreeNodeRow
+              node={node}
+              level={level}
+              isExpanded={isExpanded}
+              isFocused={focusedId === node.id}
+              isLoading={isLoading}
+              selectedIds={selectedIds}
+              onToggleExpand={onToggleExpand}
+              onToggleCheck={onToggleCheck}
+              onFocus={onFocus}
+            />
 
-      <div className={styles.contentGrid}>
-        <div className={styles.leftPane}>
-          <TreeToolbar
-            search={search}
-            onSearchChange={setSearch}
-            onExpandAll={expandAll}
-            onCollapseAll={collapseAll}
-            theme={theme}
-            onToggleTheme={toggleTheme}
-          />
-
-          <div className={styles.treeContainer} role="tree" aria-label="Checkbox tree">
-            {filteredTree.length ? (
-              filteredTree.map((node) => (
-                <TreeNodeRow
-                  key={node.id}
-                  node={node}
-                  level={1}
-                  selectedIds={selectedIds}
-                  expandedIds={expandedIds}
-                  loadingNodeIds={loadingNodeIds}
-                  focusedId={focusedId}
-                  onFocus={setFocusedId}
-                  onToggleExpand={toggleExpand}
-                  onToggleCheck={toggleCheck}
-                  onArrowDown={focusNext}
-                  onArrowUp={focusPrev}
-                  onHome={focusFirst}
-                  onEnd={focusLast}
-                />
-              ))
-            ) : (
-              <div className={styles.emptyState}>
-                <h3>No matching nodes</h3>
-                <p>Try a broader keyword or clear the search field.</p>
-              </div>
+            {hasChildren && (
+              <AnimatedTreeChildren isOpen={isExpanded}>
+                {node.children?.length ? (
+                  <NodeList
+                    nodes={node.children}
+                    level={level + 1}
+                    selectedIds={selectedIds}
+                    expandedIds={expandedIds}
+                    focusedId={focusedId}
+                    loadingNodeIds={loadingNodeIds}
+                    onToggleExpand={onToggleExpand}
+                    onToggleCheck={onToggleCheck}
+                    onFocus={onFocus}
+                    onFocusNext={onFocusNext}
+                    onFocusPrev={onFocusPrev}
+                    onFocusFirst={onFocusFirst}
+                    onFocusLast={onFocusLast}
+                  />
+                ) : null}
+              </AnimatedTreeChildren>
             )}
           </div>
-        </div>
+        );
+      })}
+    </>
+  );
+}
 
-        <div className={styles.rightPane}>
-          <SelectedChipsPanel
-            chips={selectedChips}
-            onRemove={removeSelectedChip}
-            onClearAll={clearAllSelected}
-          />
-        </div>
-      </div>
-    </section>
+export default function CheckboxTree(props: Props) {
+  const { tree } = props;
+
+  if (!tree.length) {
+    return (
+      <EmptyTreeState
+        title="No matching nodes"
+        description="Try a different search query to find tree items."
+      />
+    );
+  }
+
+  return (
+    <div
+      className={styles.treeRoot}
+      role="tree"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        switch (e.key) {
+          case 'ArrowDown':
+            e.preventDefault();
+            props.onFocusNext();
+            break;
+          case 'ArrowUp':
+            e.preventDefault();
+            props.onFocusPrev();
+            break;
+          case 'Home':
+            e.preventDefault();
+            props.onFocusFirst();
+            break;
+          case 'End':
+            e.preventDefault();
+            props.onFocusLast();
+            break;
+          default:
+            break;
+        }
+      }}
+    >
+      <NodeList {...props} nodes={tree} level={1} />
+    </div>
   );
 }

@@ -24,27 +24,3 @@ export const updateNodeChildren = (
     return node;
   });
 };
-
-export const updateNodeLoadingState = (
-  nodes: TreeNode[],
-  targetId: string,
-  partial: Partial<TreeNode>
-): TreeNode[] => {
-  return nodes.map((node) => {
-    if (node.id === targetId) {
-      return {
-        ...node,
-        ...partial,
-      };
-    }
-
-    if (node.children?.length) {
-      return {
-        ...node,
-        children: updateNodeLoadingState(node.children, targetId, partial),
-      };
-    }
-
-    return node;
-  });
-};
