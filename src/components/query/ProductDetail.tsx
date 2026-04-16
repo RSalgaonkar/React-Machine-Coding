@@ -6,6 +6,7 @@ import {
 import { useEffect } from 'react';
 import { api } from '../../lib/api';
 import styles from './ProductDetail.module.css';
+import { number } from 'framer-motion';
 
 interface Props {
   productId: number;
@@ -48,10 +49,10 @@ export default function ProductDetail({ productId }: Props) {
       queryFn: () => api.getProduct(productId + 1),
     });
 
-    queryClient.prefetchInfiniteQuery<ProductsResponse>({
+    queryClient.prefetchInfiniteQuery<ProductsResponse, Error, ProductsResponse, string[], number>({
       queryKey: ['products', 'related', product.category],
-      queryFn: ({ pageParam }) => api.getProducts({ pageParam }),
       initialPageParam: 0,
+      queryFn: ({ pageParam }) => api.getProducts({ pageParam }),
     });
   }, [productId, product.category, queryClient]);
 
