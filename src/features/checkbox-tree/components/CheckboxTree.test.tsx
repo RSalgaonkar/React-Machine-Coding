@@ -2,27 +2,26 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
-import { checkboxTreeData } from '../data/treeData';
-import CheckboxTree from './CheckboxTree';
+import TreeShowcase from './TreeShowcase';
 
-describe('CheckboxTree', () => {
-  it('renders title and allows selecting a node', async () => {
+describe('Checkbox Tree feature', () => {
+  it('renders heading and allows selecting a node', async () => {
     const user = userEvent.setup();
 
     render(
       <MemoryRouter>
-        {/* <CheckboxTree data={checkboxTreeData} title="Test Tree" /> */}
+        <TreeShowcase />
       </MemoryRouter>
     );
 
-    expect(screen.getByText('Test Tree')).toBeInTheDocument();
+    expect(screen.getByText('Advanced Checkbox Tree')).toBeInTheDocument();
 
-    const reactCheckbox = screen.getByLabelText('React');
+    const reactCheckbox = screen.getByRole('checkbox', { name: /react/i });
     await user.click(reactCheckbox);
 
     expect(reactCheckbox).toBeChecked();
-    expect(screen.getByText('Selected Skills')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /remove react/i })).toBeInTheDocument();
+    expect(screen.getByText('Selected items')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /react ×/i })).toBeInTheDocument();
   });
 
   it('filters nodes from the search box', async () => {
@@ -30,7 +29,7 @@ describe('CheckboxTree', () => {
 
     render(
       <MemoryRouter>
-        {/* <CheckboxTree data={checkboxTreeData} /> */}
+        <TreeShowcase />
       </MemoryRouter>
     );
 

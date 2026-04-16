@@ -4,7 +4,7 @@ import styles from './components/layout/Layout.module.css';
 const links = [
   { to: '/', label: 'Home', end: true },
   { to: '/checkbox-tree', label: 'Checkbox Tree' },
-  { to: '/checkbox-tree-docs', label: 'Checkbox Tree Docs' },
+  // { to: '/checkbox-tree-docs', label: 'Checkbox Tree Docs' },
   { to: '/text-streamer', label: 'Text Streamer' },
   { to: '/autocomplete', label: 'Auto Complete' },
   { to: '/comments', label: 'Nested Comments' },
