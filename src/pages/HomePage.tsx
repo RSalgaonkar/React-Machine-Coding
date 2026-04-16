@@ -1,35 +1,46 @@
 import { Link } from 'react-router-dom';
-import Card from '../components/ui/Card';
-import PageHeader from '../components/ui/PageHeader';
 
 const features = [
   { label: 'Checkbox Tree', path: '/checkbox-tree' },
   { label: 'Text Streamer', path: '/text-streamer' },
   { label: 'Auto Complete', path: '/autocomplete' },
-  { label: 'Nested Comments', path: '/comments' },
-  { label: 'Table', path: '/table' },
+  { label: 'Nested Comments', path: '/nested-comments' },
+  { label: 'Sortable Table', path: '/table' },
   { label: 'Products', path: '/products' },
   { label: 'Checkout', path: '/checkout' },
 ];
 
 export default function HomePage() {
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Machine Coding Dashboard"
-        description="A production-ready React + TypeScript + Tailwind application with reusable hooks, structured components, and tested utility logic."
-      />
+    <section className="page">
+      <h2>Machine Coding Dashboard</h2>
+      <p>Navigate to each feature page and review the implementation independently.</p>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '16px',
+          marginTop: '20px',
+        }}
+      >
         {features.map((feature) => (
-          <Link key={feature.path} to={feature.path}>
-            <Card className="h-full transition hover:-translate-y-0.5 hover:shadow-md">
-              <h3 className="text-lg font-semibold text-slate-900">{feature.label}</h3>
-              <p className="mt-2 text-sm text-slate-600">Open feature page</p>
-            </Card>
+          <Link
+            key={feature.path}
+            to={feature.path}
+            style={{
+              padding: '16px',
+              border: '1px solid #ddd',
+              borderRadius: '12px',
+              textDecoration: 'none',
+              color: '#222',
+              background: '#fff',
+            }}
+          >
+            {feature.label}
           </Link>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
