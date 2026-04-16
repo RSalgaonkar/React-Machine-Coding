@@ -91,7 +91,7 @@ export default function ProductsPage() {
         onQuickView={openQuickView}
       />
 
-      <ProductQuickViewModal
+      {/* <ProductQuickViewModal
         product={quickViewProduct}
         formatCurrency={formatCurrency}
         isWishlisted={quickViewProduct ? state.wishlist.includes(quickViewProduct.id) : false}
@@ -102,9 +102,10 @@ export default function ProductsPage() {
         onAddToCart={() => {
           if (quickViewProduct) addToCart(quickViewProduct.id);
         }}
-      />
+        // onCompare={() => quickViewProduct && dispatch(toggleCompare(quickViewProduct.id))}
+      /> */}
 
-      <CartDrawer
+      {/* <CartDrawer
         isOpen={state.isCartOpen}
         items={activeCartItems}
         formatCurrency={formatCurrency}
@@ -113,7 +114,7 @@ export default function ProductsPage() {
         onDecrement={decrementQty}
         onRemove={removeFromCart}
         onSaveForLater={saveForLater}
-      />
+      /> */}
     </section>
   );
 }
