@@ -38,6 +38,7 @@ import ProductsShowcasePage from './features/products/pages/ProductsShowcasePage
 import CheckoutAdvancedPage from './features/products/pages/CheckoutAdvancedPage';
 import OrderHistoryPage from './features/products/pages/OrderHistoryPage';
 import PlaygroundPage from './pages/PlaygroundPage';
+import ChatPage from './features/chat/ChatPage';
 
 export const router = createBrowserRouter([
   {
@@ -54,6 +55,7 @@ export const router = createBrowserRouter([
       { path: 'checkout', element: <CheckoutAdvancedPage /> },
       { path: 'orders', element: <OrderHistoryPage /> },
       { path: 'playground', element: <PlaygroundPage /> },
+      { path: 'chat', element: <ChatPage /> },
     ],
   },
 ]);

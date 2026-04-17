@@ -11,6 +11,7 @@ const links = [
   { to: '/products', label: 'Products' },
   { to: '/checkout', label: 'Checkout' },
   { to: '/playground', label: 'Playground' },
+  { to: '/chat', label: 'Chat' },
 ];
 
 export default function App() {
