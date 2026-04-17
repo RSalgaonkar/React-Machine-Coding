@@ -13,7 +13,8 @@ interface ChatLayoutProps {
   activeMessages: Message[];
   isTyping: boolean;
   selectConversation: (conversationId: string) => void;
-  sendMessage: (text: string) => void;
+  sendMessage: (text: string) => Promise<void>;
+  handleTyping: (value: string) => void;
 }
 
 export default function ChatLayout({
@@ -24,6 +25,7 @@ export default function ChatLayout({
   isTyping,
   selectConversation,
   sendMessage,
+  handleTyping,
 }: ChatLayoutProps) {
   return (
     <div className={styles.chatShell}>
@@ -37,12 +39,9 @@ export default function ChatLayout({
         {activeConversation ? (
           <>
             <ChatHeader conversation={activeConversation} />
-            <MessageList
-              messages={activeMessages}
-              currentUserId={currentUserId}
-            />
+            <MessageList messages={activeMessages} currentUserId={currentUserId} />
             {isTyping && <TypingIndicator name={activeConversation.participant.name} />}
-            <MessageInput onSend={sendMessage} />
+            <MessageInput onSend={sendMessage} onTyping={handleTyping} />
           </>
         ) : (
           <div className={styles.emptyState}>Select a conversation to start chatting.</div>

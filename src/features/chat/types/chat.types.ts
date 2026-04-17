@@ -1,4 +1,5 @@
 export type UserStatus = 'online' | 'offline';
+export type MessageStatus = 'sending' | 'sent' | 'read';
 
 export interface User {
   id: string;
@@ -14,7 +15,7 @@ export interface Message {
   senderId: string;
   text: string;
   createdAt: string;
-  status: 'sent' | 'read';
+  status: MessageStatus;
 }
 
 export interface Conversation {
@@ -31,4 +32,14 @@ export interface ChatState {
   messagesByConversation: Record<string, Message[]>;
   activeConversationId: string | null;
   typingByConversation: Record<string, boolean>;
+  isBootstrapped: boolean;
 }
+
+export type ChatAction =
+  | { type: 'BOOTSTRAP'; payload: ChatState }
+  | { type: 'SELECT_CONVERSATION'; payload: { conversationId: string } }
+  | { type: 'SEND_MESSAGE'; payload: { conversationId: string; message: Message } }
+  | { type: 'RECEIVE_MESSAGE'; payload: { conversationId: string; message: Message } }
+  | { type: 'MARK_CONVERSATION_READ'; payload: { conversationId: string } }
+  | { type: 'SET_TYPING'; payload: { conversationId: string; isTyping: boolean } }
+  | { type: 'HYDRATION_COMPLETE' };

@@ -6,14 +6,9 @@ interface MessageBubbleProps {
   isOwnMessage: boolean;
 }
 
-export default function MessageBubble({
-  message,
-  isOwnMessage,
-}: MessageBubbleProps) {
+export default function MessageBubble({ message, isOwnMessage }: MessageBubbleProps) {
   return (
-    <div
-      className={`${styles.messageRow} ${isOwnMessage ? styles.messageRowOwn : ''}`}
-    >
+    <div className={`${styles.messageRow} ${isOwnMessage ? styles.messageRowOwn : ''}`}>
       <div
         className={`${styles.messageBubble} ${
           isOwnMessage ? styles.messageBubbleOwn : styles.messageBubbleOther

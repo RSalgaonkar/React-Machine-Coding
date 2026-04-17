@@ -1,16 +1,16 @@
 import ChatLayout from './components/ChatLayout';
-import { useChat } from './hooks/useChat';
+import { useChatController } from './hooks/useChatController';
 import styles from './ChatPage.module.css';
 
 export default function ChatPage() {
-  const chat = useChat();
+  const chat = useChatController();
 
   return (
     <section className={styles.page}>
       <div className={styles.headerBlock}>
         <h2 className={styles.title}>Chat Feature</h2>
         <p className={styles.subtitle}>
-          End-to-end machine coding chat module integrated into the existing app.
+          Production-style chat module with reducer state, local persistence, typing simulation, unread tracking, and socket-ready integration.
         </p>
       </div>
 
