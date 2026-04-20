@@ -12,6 +12,7 @@ const links = [
   { to: '/checkout', label: 'Checkout' },
   { to: '/playground', label: 'Playground' },
   { to: '/chat', label: 'Chat' },
+  { to: '/collab-workspace', label: 'Collab Workspace' },
 ];
 
 export default function App() {

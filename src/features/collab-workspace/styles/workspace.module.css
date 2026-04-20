@@ -1,0 +1,448 @@
+.page {
+  display: grid;
+  gap: 20px;
+  padding: 8px 4px 24px;
+}
+
+.pageState {
+  display: grid;
+  place-items: center;
+  min-height: 50vh;
+  color: #475569;
+  font-size: 16px;
+}
+
+.header {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.eyebrow {
+  margin: 0;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.title {
+  margin: 4px 0 0;
+  font-size: 32px;
+  line-height: 1.1;
+  color: #0f172a;
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  max-width: 68ch;
+  color: #475569;
+  font-size: 15px;
+}
+
+.headerActions {
+  display: grid;
+  gap: 12px;
+}
+
+.metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.metric {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.headerControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.statusPill {
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.primaryButton,
+.secondaryButton,
+.bannerButton,
+.statusButton {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  transition: 180ms ease;
+}
+
+.primaryButton {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 700;
+}
+
+.primaryButton:hover {
+  background: #1d4ed8;
+}
+
+.secondaryButton {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.secondaryButton:hover {
+  background: #cbd5e1;
+}
+
+.topGrid,
+.contentGrid {
+  display: grid;
+  gap: 20px;
+}
+
+.panel {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #ffffff;
+  min-width: 0;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.panelHeader h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 18px;
+}
+
+.panelMeta {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.collaboratorList,
+.timelineList,
+.taskList {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.collaboratorItem {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.collaboratorBody {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.collaboratorTop {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.collaboratorText {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.presenceDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.online {
+  background: #22c55e;
+}
+
+.offlineDot {
+  background: #94a3b8;
+}
+
+.composerForm {
+  display: grid;
+  gap: 12px;
+}
+
+.input,
+.select,
+.taskTitleInput {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 11px 12px;
+  font-size: 14px;
+  color: #0f172a;
+  background: #fff;
+}
+
+.input:focus,
+.select:focus,
+.taskTitleInput:focus {
+  outline: 2px solid #bfdbfe;
+  border-color: #2563eb;
+}
+
+.taskCard {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #fff;
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.taskCard:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.08);
+}
+
+.taskCardSelected {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.taskTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.taskTitleWrap {
+  display: grid;
+  gap: 10px;
+  flex: 1;
+}
+
+.taskTitleInput {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.taskMeta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.priorityBadge,
+.versionBadge,
+.syncBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.priorityBadge {
+  background: #fef3c7;
+  color: #92400e;
+  text-transform: capitalize;
+}
+
+.versionBadge {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.syncBadge {
+  text-transform: capitalize;
+}
+
+.saved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.syncing {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.error {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.offline {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.taskBottom {
+  display: grid;
+  gap: 12px;
+}
+
+.statusGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.statusButton {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.statusButton:hover {
+  background: #e2e8f0;
+}
+
+.statusActive {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.taskHints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.timelineItem {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid transparent;
+  transition: 180ms ease;
+}
+
+.timelineItemActive {
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+
+.timelineTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: #334155;
+}
+
+.timelineItem p {
+  margin: 0;
+  color: #475569;
+  font-size: 14px;
+}
+
+.conflictBanner {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid #fecaca;
+  background: #fff1f2;
+  color: #9f1239;
+}
+
+.bannerButton {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #ffe4e6;
+  color: #9f1239;
+  font-weight: 700;
+}
+
+@media (min-width: 900px) {
+  .topGrid {
+    grid-template-columns: 1.2fr 1fr;
+  }
+
+  .contentGrid {
+    grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.9fr);
+    align-items: start;
+  }
+
+  .header {
+    grid-template-columns: 1.5fr 1fr;
+    align-items: end;
+  }
+}
+
+@media (max-width: 640px) {
+  .title {
+    font-size: 26px;
+  }
+
+  .header,
+  .panel,
+  .taskCard {
+    padding: 14px;
+  }
+
+  .conflictBanner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
