@@ -13,6 +13,7 @@ const links = [
   { to: '/playground', label: 'Playground' },
   { to: '/chat', label: 'Chat' },
   { to: '/collab-workspace', label: 'Collab Workspace' },
+  { to: '/decision-lab', label: 'Decision Lab' },
 ];
 
 export default function App() {
